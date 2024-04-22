@@ -26,6 +26,7 @@
     
     <div class="container">
         <div class="d-flex justify-content-center">
+            {{env('APP_URL')}}/calendario/list
             <h2 class="titulo ">Calendário de Eventos</h2>
         </div>
         <div id='calendar'></div>
