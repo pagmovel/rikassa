@@ -39,7 +39,9 @@ return [
 
     'flare_middleware' => [
         RemoveRequestIp::class,
-        AddGitInformation::class,
+        AddGitInformation::class => [
+            'collect_git_information' => false,
+        ],
         AddNotifierName::class,
         AddEnvironmentInformation::class,
         AddExceptionInformation::class,
@@ -84,5 +86,5 @@ return [
     */
 
     'send_logs_as_events' => true,
-    'collect_git_information' => false,
+    // 'collect_git_information' => false,
 ];
