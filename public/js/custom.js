@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
         dayMaxEvents: true, // allow "more" link when too many events
 
         
-        events: '/calendario/list',
+        events: 'calendario/list',
         
         eventClick: function (info) {
             // receber o SELETOR da janela modal
