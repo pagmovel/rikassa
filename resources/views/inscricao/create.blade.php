@@ -11,7 +11,13 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
     
     
-    <link rel="stylesheet" href="/css/custom.css">
+    @if (env('APP_ENV')=='local')
+        <?php $caminho = ''; ?>
+    @else
+        <?php $caminho = '/public/'; ?>
+    @endif
+    
+    <link rel="stylesheet" href="{{ asset($caminho.'css/custom.css')}} ">
 
 <style>
     .form-control {
