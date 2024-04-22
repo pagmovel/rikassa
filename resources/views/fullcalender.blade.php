@@ -69,130 +69,86 @@
     <script src="{{ asset($caminho.'js/bootstrap5/index.global.min.js') }}"></script>
     <script src="{{ asset($caminho.'js/fullcalendar/pt-br.global.min.js') }}"></script>
     
-    <script type="text/javascript">
-        // $(document).ready(function () {
-        
-    //     /*------------------------------------------
-    //     --------------------------------------------
-    //     Get Site URL
-    //     --------------------------------------------
-    //     --------------------------------------------*/
-    //     var SITEURL = "{{ url('/') }}";
-        
-    //     /*------------------------------------------
-    //     --------------------------------------------
-    //     CSRF Token Setup
-    //     --------------------------------------------
-    //     --------------------------------------------*/
-    //     $.ajaxSetup({
-    //         headers: {
-    //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-    //         }
-    //     });
-        
-    //     /*------------------------------------------
-    //     --------------------------------------------
-    //     FullCalender JS Code
-    //     --------------------------------------------
-    //     --------------------------------------------*/
-    //     var calendar = $('#calendar').fullCalendar({
-                        
-    //                     editable: true,
-    //                     events: SITEURL + "/fullcalender",
-    //                     displayEventTime: false,
-    //                     editable: true,
-    //                     eventRender: function (event, element, view) {
-    //                         if (event.allDay === 'true') {
-    //                                 event.allDay = true;
-    //                         } else {
-    //                                 event.allDay = false;
-    //                         }
-    //                     },
-    //                     selectable: true,
-    //                     selectHelper: true,
-    //                     select: function (start, end, allDay) {
-    //                         var title = prompt('Event Title:');
-    //                         if (title) {
-    //                             var start = $.fullCalendar.formatDate(start, "Y-MM-DD");
-    //                             var end = $.fullCalendar.formatDate(end, "Y-MM-DD");
-    //                             $.ajax({
-    //                                 url: SITEURL + "/fullcalenderAjax",
-    //                                 data: {
-    //                                     title: title,
-    //                                     start: start,
-    //                                     end: end,
-    //                                     type: 'add'
-    //                                 },
-    //                                 type: "POST",
-    //                                 success: function (data) {
-    //                                     displayMessage("Event Created Successfully");
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
     
-    //                                     calendar.fullCalendar('renderEvent',
-    //                                         {
-    //                                             id: data.id,
-    //                                             title: title,
-    //                                             start: start,
-    //                                             end: end,
-    //                                             allDay: allDay
-    //                                         },true);
+        var calendar = new FullCalendar.Calendar(calendarEl, {
     
-    //                                     calendar.fullCalendar('unselect');
-    //                                 }
-    //                             });
-    //                         }
-    //                     },
-    //                     eventDrop: function (event, delta) {
-    //                         var start = $.fullCalendar.formatDate(event.start, "Y-MM-DD");
-    //                         var end = $.fullCalendar.formatDate(event.end, "Y-MM-DD");
+            themeSystem: 'bootstrap5',
     
-    //                         $.ajax({
-    //                             url: SITEURL + '/fullcalenderAjax',
-    //                             data: {
-    //                                 title: event.title,
-    //                                 start: start,
-    //                                 end: end,
-    //                                 id: event.id,
-    //                                 type: 'update'
-    //                             },
-    //                             type: "POST",
-    //                             success: function (response) {
-    //                                 displayMessage("Event Updated Successfully");
-    //                             }
-    //                         });
-    //                     },
-    //                     eventClick: function (event) {
-    //                         var deleteMsg = confirm("Do you really want to delete?");
-    //                         if (deleteMsg) {
-    //                             $.ajax({
-    //                                 type: "POST",
-    //                                 url: SITEURL + '/fullcalenderAjax',
-    //                                 data: {
-    //                                         id: event.id,
-    //                                         type: 'delete'
-    //                                 },
-    //                                 success: function (response) {
-    //                                     calendar.fullCalendar('removeEvents', event.id);
-    //                                     displayMessage("Event Deleted Successfully");
-    //                                 }
-    //                             });
-    //                         }
-    //                     }
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            // initialDate: '2023-01-12',
+            locale: 'pt-br',
     
-    //                 });
+            // initialDate: new Date(),
     
-    //     });
-        
-    //     /*------------------------------------------
-    //     --------------------------------------------
-    //     Toastr Success Code
-    //     --------------------------------------------
-    //     --------------------------------------------*/
-    //     function displayMessage(message) {
-    //         toastr.success(message, 'Event');
-    //     } 
+            // Permitir clicar nos nomes dos dias da semana
+            navLinks: true, 
+    
+            // Permitir clicar e arrastar o mouse sobre um ou vários dias no calendário
+            selectable: true,
+    
+            // Indicar visualmente a árera que será selecionada antes que o usuário
+            // solte o botão para confirmar a seleção
+            selectMirror: true,
+    
+            // permiti selecionar o evento
+            // select: function(arg) {
+            //     var title = prompt('Event Title:');
+            //     if (title) {
+            //         calendar.addEvent({
+            //         title: title,
+            //         start: arg.start,
+            //         end: arg.end,
+            //         allDay: arg.allDay
+            //         })
+            //     }
+            //     calendar.unselect()
+            // },
+    
+            // Permite clicar no evento
+            // eventClick: function(arg) {
+            //     if (confirm('Are you sure you want to delete this event?')) {
+            //         arg.event.remove()
+            //     }
+            // },
+    
+            // Permitir arrastar evento pelo calendário
+            editable: true,
+    
+            // Número máximo de eventos em um determinado dia, se for true, o número
+            // de eventos será limitado à altura da célula do dia
+            dayMaxEvents: true, // allow "more" link when too many events
+    
+            
+            events: {{env('APP_URL')}}'/calendario/list',
+            
+            eventClick: function (info) {
+                // receber o SELETOR da janela modal
+                const visualizarModal = new bootstrap.Modal(document.getElementById("visualizarModal"));
+    
+                // Enviar dados para o modal
+                document.getElementById("visualizar_id").innerText = info.event.id;
+                document.getElementById("visualizar_title").innerText = info.event.title;
+                document.getElementById("visualizar_start").innerText = info.event.start.toLocaleString();
+                document.getElementById("visualizar_end").innerText = info.event.end.toLocaleString();
+    
+                // Abrir a janela modal
+                visualizarModal.show();
+    
+            },
+        });
+    
+        calendar.render();
+    });
         
     </script>
-    <script src="{{ asset($caminho.'js/custom.js') }}" /></script>
+    {{-- <script src="{{ asset($caminho.'js/custom.js') }}" /></script> --}}
   
 </body>
 </html>
