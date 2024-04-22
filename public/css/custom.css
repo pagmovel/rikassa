@@ -1,0 +1,55 @@
+body {
+    margin: 40px 10px;
+    padding: 0;
+    font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+    font-size: 14px;
+}
+
+#calendar {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.btn-check:checked+.btn, .btn.active, .btn.show, .btn:first-child:active, :not(.btn-check)+.btn:active {
+    color: var(--bs-btn-active-color);
+    background-color: #563101 !important;
+    border-color: #563101 !important;
+}
+
+.btn-primary {
+    background-color: #94580A !important;
+    border-color: #563101 !important;
+}
+
+.titulo, .fc-theme-bootstrap5, a:not([href]) {
+    color: #94580A !important;
+}
+
+.fc-theme-bootstrap5 .fc-list, .fc-theme-bootstrap5 .fc-scrollgrid, .fc-theme-bootstrap5 td, .fc-theme-bootstrap5 th {
+    border: 1px solid #f5d9bf !important;
+}
+
+.popover-header {
+    background-color: #DEAD80 !important;
+}
+
+.fc-toolbar-title {
+    color: #94580A !important;
+}
+
+.fc .fc-toolbar-title {
+    text-transform: capitalize !important;
+}
+/*
+#94580A marrom
+#563101 marrom escuro
+#DEAD80 salmão claro
+*/
+
+.fc-event-time, .fc-event-title {
+    color: #94580A !important;
+}
+
+/* .fc-h-event {
+    color: #DEAD80 !important;
+} */
