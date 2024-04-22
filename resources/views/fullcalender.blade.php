@@ -126,7 +126,7 @@
             dayMaxEvents: true, // allow "more" link when too many events
     
             
-            events: {{env('APP_URL')}}'/calendario/list',
+            events: '{{env('APP_URL')}}/calendario/list',
             
             eventClick: function (info) {
                 // receber o SELETOR da janela modal
