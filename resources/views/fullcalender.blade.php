@@ -25,8 +25,7 @@
 <body>
     
     <div class="container">
-        <div class="d-flex justify-content-center">
-            {{env('APP_URL')}}/calendario/list
+        <div class="d-flex justify-content-center">            
             <h2 class="titulo ">Calendário de Eventos</h2>
         </div>
         <div id='calendar'></div>
@@ -127,7 +126,8 @@
             dayMaxEvents: true, // allow "more" link when too many events
     
             
-            events: '{{env('APP_URL')}}/calendario/list',
+            events: "{{env('APP_URL')}}/calendario/list",
+            
             
             eventClick: function (info) {
                 // receber o SELETOR da janela modal
