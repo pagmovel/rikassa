@@ -106,8 +106,8 @@
             dayMaxEvents: true, // allow "more" link when too many events
     
             
-           //events: "{{env('APP_URL')}}/calendario/list",
-           events: 'http://rikassa.exatamentepublicidade.com.br/calendario/list',
+           events: "{{env('APP_URL')}}/calendario/list",
+        //    events: 'http://rikassa.exatamentepublicidade.com.br/calendario/list',
             
             
             eventClick: function (info) {
