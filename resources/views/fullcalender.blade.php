@@ -18,8 +18,7 @@
     @endif
     
     <link rel="stylesheet" href="{{ asset($caminho.'css/custom.css')}} ">
-    <!-- Scripts -->
-    {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
+
     
 </head>
 <body>
@@ -97,26 +96,7 @@
             // solte o botão para confirmar a seleção
             selectMirror: true,
     
-            // permiti selecionar o evento
-            // select: function(arg) {
-            //     var title = prompt('Event Title:');
-            //     if (title) {
-            //         calendar.addEvent({
-            //         title: title,
-            //         start: arg.start,
-            //         end: arg.end,
-            //         allDay: arg.allDay
-            //         })
-            //     }
-            //     calendar.unselect()
-            // },
-    
-            // Permite clicar no evento
-            // eventClick: function(arg) {
-            //     if (confirm('Are you sure you want to delete this event?')) {
-            //         arg.event.remove()
-            //     }
-            // },
+            
     
             // Permitir arrastar evento pelo calendário
             editable: true,
@@ -150,7 +130,7 @@
     });
         
     </script>
-    {{-- <script src="{{ asset($caminho.'js/custom.js') }}" /></script> --}}
+
   
 </body>
 </html>
