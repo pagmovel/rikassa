@@ -55,9 +55,9 @@ class Contact extends Mailable
             view: 'mails.enviar_confirmacao_inscricao',
             with: [
                 'dados' => $this->data['message'],
-                'nome'  => $this->data['message']['name'],
+                'nome'  => $this->data['message']['nome'],
                 'email'  => $this->data['message']['email'],
-                'nome_reduzido' => implode(' ', [$first = current($parts = explode(' ', trim($this->data['message']['name']))), $last = end($parts)]),
+                'nome_reduzido' => implode(' ', [$first = current($parts = explode(' ', trim($this->data['message']['nome']))), $last = end($parts)]),
             ],
         );
     }

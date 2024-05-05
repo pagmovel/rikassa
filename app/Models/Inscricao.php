@@ -15,7 +15,7 @@ class Inscricao extends Model
         'nome','email','whatsapp','nascimento','altura','cidade',
         'estado','foto','profissao','idiomas','nacionalidade',
         'interesses_pessoais','experiencia_previa','instagram','facebook',
-        'x_twitter','concordo', 'pagou'
+        'x_twitter','concordo','confirmou_email', 'pagou','data_pagamento',
     ];
 
 }

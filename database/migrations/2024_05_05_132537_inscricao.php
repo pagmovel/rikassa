@@ -20,19 +20,22 @@ return new class extends Migration
             $table->double('altura',10,2);
             $table->string('cidade');
             $table->string('estado');
-            $table->string('file');
+            $table->string('foto');
             $table->string('profissao');
             $table->string('idiomas');
             $table->string('nacionalidade');
             $table->string('interesses_pessoais');
-            $table->string('experiencia');
+            $table->string('experiencia_previa');
 
             $table->text('instagram')->nullable();
             $table->text('facebook')->nullable();
             $table->text('x_twitter')->nullable();
             
             $table->boolean('concordo')->default(False);
+            $table->timestamp('confirmou_email')->nullable();
+
             $table->boolean('pagou')->nullable()->default(False);
+            $table->timestamp('data_pagamento')->nullable();
 
             $table->timestamps();
         });
