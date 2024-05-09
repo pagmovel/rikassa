@@ -11,7 +11,10 @@ use phpDocumentor\Reflection\PseudoTypes\True_;
 
 class InscricaoController extends Controller
 {
-    
+    public function __construct(
+        private MercadoPagoService $mercadoPagoService
+    ){}
+
     protected function rules($request)
     {
         $rules =  [
@@ -37,9 +40,9 @@ class InscricaoController extends Controller
                 // 'dimensions:ratio=3/2',
             ]
         ];
-        
+
         return $request->validate($rules);
-        
+
     }
 
     /**
@@ -75,8 +78,8 @@ class InscricaoController extends Controller
         // dd($campos);
 
         $resultado = Inscricao::create($campos);
-        
-        
+
+
         if($resultado){
             //Email solicitando confirmação (para checar se o email existe)
             $sent = Mail::to($request->input('email'), $request->input('nome'))->send(new Contact([
@@ -94,7 +97,7 @@ class InscricaoController extends Controller
 
 
         // dd($request->input('email'));
-        
+
     }
 
 
@@ -105,8 +108,8 @@ class InscricaoController extends Controller
             // Confirma o email
             $dados = Inscricao::where('email', $email)->update(['confirmou_email' => date('Y-m-d H:i:s')]);
 
-        } else {  
-            // email já estava confirmado          
+        } else {
+            // email já estava confirmado
             $dataHoraAmericana = $dados->confirmou_email;
             $hora_ja_confirmada = Carbon::createFromFormat('Y-m-d H:i:s', $dataHoraAmericana)->format('d/m/Y H:i:s');
         }
@@ -115,6 +118,15 @@ class InscricaoController extends Controller
 
         // Exibir para a pessoa os próximos passos (enviar fotos e vídeos pelo zap)
     }
+
+
+
+
+    public function finalizarCompra()
+    {
+        //
+    }
+
     /**
      * Display the specified resource.
      */
@@ -137,7 +149,7 @@ class InscricaoController extends Controller
     public function update(Request $request, string $id)
     {
         //
-        
+
 // CONFIRMAÇÃO DE PAGAMENTO
 
         // Prezada [Nome da Participante], estamos entusiasmados em confirmar que seu pagamento para o Concurso de Beleza foi recebido com sucesso. Como parte do nosso processo de comunicação contínua e para mantê-la informada sobre cada passo do concurso, você será adicionada a um grupo exclusivo de WhatsApp. Enviamos o link de acesso ao grupo para o e-mail cadastrado. Agradecemos por escolher participar do nosso concurso e estamos ansiosos para vê-la brilhar. Atenciosamente, Equipe Rikassa.
