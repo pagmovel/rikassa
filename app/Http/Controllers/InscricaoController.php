@@ -307,7 +307,33 @@ class InscricaoController extends Controller
 
     public function webhook(Request $request)
     {
-        $this->mercadoPagoService->webhookMercadoPago($request);
+        $pagto = $this->mercadoPagoService->webhookMercadoPago($request);
+
+        dd($pagto);
+        /*
+        Status de pagamento	Descrição	Documento de identidade
+        APRO	Pagamento aprovado	(CPF) 12345678909
+        OTHE	Recusado por erro geral	(CPF) 12345678909
+        CONT	Pagamento pendente	-
+        CALL	Recusado com validação para autorizar	-
+        FUND	Recusado por quantia insuficiente	-
+        SECU	Recusado por código de segurança inválido	-
+        EXPI	Recusado por problema com a data de vencimento	-
+        FORM	Recusado por erro no formulário	
+        */
+    }
+
+    
+
+
+    public function mpwebhook(Request $request)
+    {
+        
+        Log::debug($request->input());
+
+        // $pagto = $this->mercadoPagoService->webhookMercadoPago($request);
+
+        // dd($pagto);
         /*
         Status de pagamento	Descrição	Documento de identidade
         APRO	Pagamento aprovado	(CPF) 12345678909

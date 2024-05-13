@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Inscricao;
+use App\Models\Pagamento;
 use MercadoPago\SDK;
 use MercadoPago\Item;
 use Illuminate\Http\Request;
@@ -103,6 +104,15 @@ class MercadoPagoService {
         $dados = $request->input();
 
         // $dados['inscricao_id'] = $request['external_reference'];
-        dd(Auth::user(), $this->inscricao, $dados);
+        $filteredArray = array_filter($dados, function ($value) {
+            if ($value != 'null'){
+                return $value;
+            }
+        });
+
+        return Pagamento::create($filteredArray);
+
+        // return 
+        // dd(Auth::user(), $res, $filteredArray);
     }
 }
