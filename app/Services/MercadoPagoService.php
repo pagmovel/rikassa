@@ -69,10 +69,13 @@ class MercadoPagoService {
                 "pending" => env('APP_URL') . "/mercadopago/webhook/pending",
             ),
             "auto_return" => "approved",
+            "external_reference" => $id,
            
         ]);
 
-        $preference->external_reference = $id;
+        // $preference->external_reference = $id;
+
+        // $preference
 
         // dd($preference);
 
