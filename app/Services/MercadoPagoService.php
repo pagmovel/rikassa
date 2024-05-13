@@ -51,7 +51,7 @@ class MercadoPagoService {
         // $this->inscricao = Inscricao::where("email", Auth::user()->email)->first();
     }
 
-    public function criarPreferencia()
+    public function criarPreferencia($id)
     {
         
         $client = new PreferenceClient();
@@ -72,7 +72,9 @@ class MercadoPagoService {
            
         ]);
 
-        $preference->external_reference = '66666666666';
+        $preference->external_reference = $id;
+
+        // dd($preference);
 
        
         return $preference->sandbox_init_point;
@@ -97,7 +99,7 @@ class MercadoPagoService {
         Log::debug($request->input());
         $dados = $request->input();
 
-        $dados['inscricao_id'] = $request['external_reference'];
+        // $dados['inscricao_id'] = $request['external_reference'];
         dd(Auth::user(), $this->inscricao, $dados);
     }
 }

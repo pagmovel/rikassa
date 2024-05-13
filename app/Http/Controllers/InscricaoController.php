@@ -200,7 +200,7 @@ class InscricaoController extends Controller
             Auth::login($user);
 
             // Renderizar a tela para o pagamento
-            $link_pagamento = $this->mercadoPagoService->criarPreferencia();
+            $link_pagamento = $this->mercadoPagoService->criarPreferencia($id);
 
             return view('inscricao.confirmacao', compact('link_pagamento','user','dados','dataHoraAmericana','hora_ja_confirmada'));
 
