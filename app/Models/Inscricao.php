@@ -13,7 +13,7 @@ class Inscricao extends Model
 
     protected $fillable = [
         'nome','email','whatsapp','nascimento','altura','cidade',
-        'estado','foto','profissao','idiomas','nacionalidade',
+        'estado','bairro','foto','profissao','idiomas','nacionalidade',
         'interesses_pessoais','experiencia_previa','instagram','facebook',
         'x_twitter','concordo','confirmou_email', 'pagou','data_pagamento',
     ];

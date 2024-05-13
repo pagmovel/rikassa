@@ -1,49 +1,6 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Rikassa - Formulário de3 Inscrição</title>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
-
-
-    @if (env('APP_ENV')=='local')
-        <?php $caminho = ''; ?>
-    @else
-        <?php $caminho = '/public/'; ?>
-    @endif
-
-    <link rel="stylesheet" href="{{ asset($caminho.'css/custom.css')}} ">
-
-
-<style>
-    .form-control {
-        border: 1px solid #94580A !important;
-    }
-    input, label, .texto {
-        color: #94580A !important;
-    }
-
-    .form-check-input:checked {
-        background-color: #94580A !important;
-        border-color: #563101 !important;
-    }
-    
-    .erro-estado {
-        width: 100%;
-        margin-top: 0.25rem;
-        font-size: .875em;
-        color: #dc3545;
-    }
-
-</style>
-
-</head>
-<body class="container">
+@extends('layouts.rikassa')
+@section('title', 'Formulário de Inscrição')
+@section('content')
     <div class="">
         <div class="row">
             <h2 class="mb-5 text-center titulo">Formulário de Inscrição</h2>
@@ -53,8 +10,7 @@
 
             <form id="FormInscricao" class="mx-auto mb-3 col-md-6 form-floating" action="{{ route('inscricao.store') }}" method="post" enctype="multipart/form-data">
                 @csrf
-                {{-- <input type="text" name="teste2" value="teste2">
-                <input type="text" name="teste3" value="teste3"> --}}
+                
                 <div class="row">
                     <div class="col-md-12">
                         <div class="mb-3 form-floating">
@@ -311,106 +267,61 @@
             
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/imask"></script>
-    <script>
-        // whatsapp
-        const whatsapp = document.getElementById('floatingWhatsapp');
-        const maskWhatsappOptions = {
-            mask: '+{55} (00) 00000-0000'
-        };
-        var mask = IMask(whatsapp, maskWhatsappOptions);
-
-
-        // floatingAltura
-        const altura = document.getElementById('floatingAltura');
-        const maskAlturaOptions = {
-            mask: '{0,00}'
-        };
-        var mask = IMask(altura, maskAlturaOptions);
-
-
-        // // floatingAltura
-        // const altura = document.getElementById('floatingWhatsapp');
-        // const maskAlturaOptions = {
-        //     mask: '+{55} (00) 00000-0000'
-        // };
-        // var mask = IMask(altura, maskAlturaOptions);
-
-        // IMask(
-        //     // document.getElementById('floatingWhatsapp'),
-        //     // {
-        //     //     mask: '+55 (00) 00000-0000'
-        //     // },
-        //     document.getElementById('floatingAltura'),
-        //     {
-        //         mask: Number,
-        //         min: -10000,
-        //         max: 10000,
-        //         scale: 2,  // digits after point, 0 for integers
-        //         thousandsSeparator: ' '
-        //     }
-        // )
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Seleciona o elemento input do tipo date
-            const inputDate = document.querySelector('input[type="date"]');
-
-            // Define o evento onclick para o input
-            inputDate.onclick = function() {
-                // Simula um clique para abrir o calendário nativo do navegador
-                inputDate.click();
+    
+    @push('scripts')
+        <script src="https://unpkg.com/imask"></script>
+        <script>
+            // whatsapp
+            const whatsapp = document.getElementById('floatingWhatsapp');
+            const maskWhatsappOptions = {
+                mask: '+{55} (00) 00000-0000'
             };
+            var mask = IMask(whatsapp, maskWhatsappOptions);
 
-            // Impede que o usuário digite no campo
-            inputDate.onkeydown = function(event) {
-                event.preventDefault();
+
+            // floatingAltura
+            const altura = document.getElementById('floatingAltura');
+            const maskAlturaOptions = {
+                mask: '{0,00}'
             };
-
-            // Impede que o usuário cole no campo
-            inputDate.onpaste = function(event) {
-                event.preventDefault();
-            };
-        });
-
-    </script>
-
-    {{-- <script src="//unpkg.com/vanilla-masker@1.1.1/build/vanilla-masker.min.js"></script>
-
-    <script>
-        function inputHandler(masks, max, event) {
-            var c = event.target;
-            var v = c.value.replace(/\D/g, '');
-            var m = c.value.length > max ? 1 : 0;
-            VMasker(c).unMask();
-            VMasker(c).maskPattern(masks[m]);
-            c.value = VMasker.toPattern(v, masks[m]);
-        }
-
-        var telMask = ['+55 (99) 99999-9999'];
-        var tel = document.querySelector('#floatingWhatsapp');
-        VMasker(tel).maskPattern(telMask[0]);
-        tel.addEventListener('input', inputHandler.bind(undefined, telMask, 14), false);
+            var mask = IMask(altura, maskAlturaOptions);
 
 
-        var dateMask = ['99/99/9999'];
-        var nascimento = document.querySelector('#floatingDataNascimento');
-        VMasker(nascimento).maskPattern(dateMask[0]);
-        nascimento.addEventListener('input', inputHandler.bind(undefined, dateMask, 14), false);
+            document.addEventListener('DOMContentLoaded', function() {
+                // Seleciona o elemento input do tipo date
+                const inputDate = document.querySelector('input[type="date"]');
 
+                // Define o evento onclick para o input
+                inputDate.onclick = function() {
+                    // Simula um clique para abrir o calendário nativo do navegador
+                    inputDate.click();
+                };
 
-    </script> --}}
+                // Impede que o usuário digite no campo
+                inputDate.onkeydown = function(event) {
+                    event.preventDefault();
+                };
 
-    <script>
-        function submitForm() {
-            var form = document.getElementById('FormInscricao');
-            if (form) {
-                document.getElementById('btn_enviar').disabled = true;
-                form.submit();
-            } else {
-                console.error('Formulário não encontrado!');
+                // Impede que o usuário cole no campo
+                inputDate.onpaste = function(event) {
+                    event.preventDefault();
+                };
+            });
+
+        </script>
+
+        
+
+        <script>
+            function submitForm() {
+                var form = document.getElementById('FormInscricao');
+                if (form) {
+                    document.getElementById('btn_enviar').disabled = true;
+                    form.submit();
+                } else {
+                    console.error('Formulário não encontrado!');
+                }
             }
-        }
-    </script>
-</body>
-</html>
+        </script>
+    @endpush
+@endsection

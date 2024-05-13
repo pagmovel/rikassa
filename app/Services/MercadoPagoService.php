@@ -1,10 +1,16 @@
 <?php
 
 namespace App\Services;
-use MercadoPago\MercadoPagoConfig;
-use MercadoPago\Item;
-use MercadoPago\Preference;
+
+use App\Models\Inscricao;
 use MercadoPago\SDK;
+use MercadoPago\Item;
+use Illuminate\Http\Request;
+use MercadoPago\MercadoPagoConfig;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use MercadoPago\Resources\Preference;
+use MercadoPago\Client\Preference\PreferenceClient;
 
 class MercadoPagoService {
     /**Public Key
@@ -27,28 +33,71 @@ class MercadoPagoService {
 
     */
 
+    /*
+     * Public Key
+     * TEST-2f7671c1-ec6e-4ff6-af9a-f760699020f2
+     *
+     * Access Token
+     * TEST-6429758410265883-051009-63275dad8555974c08babdb43ab202fb-238034526
+     *
+     *
+     */
+
+    public $inscricao;
+
     public function __construct()
     {
-        MercadoPagoConfig::setAccessToken(config(mercadopago.access_token));
+        MercadoPagoConfig::setAccessToken(env('MERCADOPAGO_ACCESS_TOKEN'));
+        // $this->inscricao = Inscricao::where("email", Auth::user()->email)->first();
     }
 
     public function criarPreferencia()
     {
+        
         $client = new PreferenceClient();
         $preference = $client->create([
             "items"=> array(
                 array(
                 "title" => "Inscrição Concurso RIKASSA 2024",
                 "quantity" => 1,
-                "unit_price" => 1500.00
+                "unit_price" => 1500.00,
                 )
-            )
+            ),
+            "back_urls" => array( //"http://localhost/rikassa/public/inscricao",
+                "success" => env('APP_URL') . "/mercadopago/webhook/success",
+                "failure" => env('APP_URL') . "/mercadopago/webhook/failure",
+                "pending" => env('APP_URL') . "/mercadopago/webhook/pending",
+            ),
+            "auto_return" => "approved",
+           
         ]);
+
+        $preference->external_reference = '66666666666';
+
+       
+        return $preference->sandbox_init_point;
+
+//        $client->back_urls = array(
+//            "success" => "https://www.seu-site/success",
+//            "failure" => "http://www.seu-site/failure",
+//            "pending" => "http://www.seu-site/pending"
+//        );
+//        $client->auto_return = "approved";
     }
 
 
     public function obterPago()
     {
         //
+    }
+
+    public function webhookMercadoPago(Request $request)
+    {
+
+        Log::debug($request->input());
+        $dados = $request->input();
+
+        $dados['inscricao_id'] = $request['external_reference'];
+        dd(Auth::user(), $this->inscricao, $dados);
     }
 }

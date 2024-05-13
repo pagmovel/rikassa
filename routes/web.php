@@ -39,7 +39,19 @@ Route::controller(EventosController::class)->group(function(){
 Route::middleware(['cors'])->group(function () {
     Route::get('/inscricao',[InscricaoController::class, 'create'])->name('inscricao.create');
     Route::post('/inscricao',[InscricaoController::class, 'store'])->name('inscricao.store');
-    Route::get('/inscricao/confirmada/{email}',[InscricaoController::class, 'confirmar'])->name('inscricao.confirmar');
+    // Route::get('/comprovantepix',[InscricaoController::class, 'pix'])->name('inscricao.pix');
+    Route::post('/comprovantepix',[InscricaoController::class, 'store_pix'])->name('inscricao.store.pix');
+
+
+//    Route::get('/inscricao/confirmada/{email}',[InscricaoController::class, 'confirmar'])->name('inscricao.confirmar');
+    // Route::get('/inscricao/confirmada/{ni}/{id}',[InscricaoController::class, 'confirmar'])->name('inscricao.confirmar');
+    Route::get('/inscricao/confirmada/{ni}',[InscricaoController::class, 'confirmar'])->name('inscricao.confirmar');
+    Route::get('/inscricao/confirmar_pix/{ni}',[InscricaoController::class, 'confirmar_pix'])->name('inscricao.confirmar_pix');
+    
+    Route::get('/mercadopago/webhook/failure', [InscricaoController::class, 'webhook'])->name('webhook');
+    Route::get('/mercadopago/webhook/pending', [InscricaoController::class, 'webhook'])->name('webhook');
+    Route::get('/mercadopago/webhook/success', [InscricaoController::class, 'webhook'])->name('webhook');
+    
 });
 
 // Route::get('/dashboard', function () {

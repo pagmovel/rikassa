@@ -20,6 +20,7 @@ return new class extends Migration
             $table->double('altura',10,2);
             $table->string('cidade');
             $table->string('estado');
+            $table->string('bairro');
             $table->string('foto');
             $table->string('profissao');
             $table->string('idiomas');
@@ -36,6 +37,9 @@ return new class extends Migration
 
             $table->boolean('pagou')->nullable()->default(False);
             $table->timestamp('data_pagamento')->nullable();
+
+            $table->string('comprovante_pix')->nullable();
+            $table->string('cartao')->nullable();
 
             $table->timestamps();
         });

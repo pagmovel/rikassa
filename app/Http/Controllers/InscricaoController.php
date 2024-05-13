@@ -3,10 +3,19 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use App\Models\User;
 use App\Mail\Contact;
 use App\Models\Inscricao;
 use Illuminate\Http\Request;
+use App\Mail\DadosCadastrais;
+use App\Mail\EnviarComprovanteAdm;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
+use App\Services\MercadoPagoService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use phpDocumentor\Reflection\PseudoTypes\True_;
 
 class InscricaoController extends Controller
@@ -15,6 +24,19 @@ class InscricaoController extends Controller
         private MercadoPagoService $mercadoPagoService
     ){}
 
+    protected function rules_pix($request)
+    {
+        $rules =  [
+            'comprovante' => [
+                'required',
+                'image',
+                'mimes:jpg,png',
+                // 'dimensions:ratio=3/2',
+            ]
+        ];
+
+        return $request->validate($rules);
+    }
     protected function rules($request)
     {
         $rules =  [
@@ -62,7 +84,7 @@ class InscricaoController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store data customer
      */
     public function store(Request $request)
     {
@@ -70,7 +92,7 @@ class InscricaoController extends Controller
 
         $request['altura'] = str_replace(",", ".", $request['altura']);
 
-        $filePath = $request->file('foto')->store('storage/app/fotos');
+        $filePath = $request->file('foto')->store('fotos');
         $fileName = basename($filePath);
         $campos = $request->except(['foto','_token']);
 
@@ -79,6 +101,8 @@ class InscricaoController extends Controller
 
         $resultado = Inscricao::create($campos);
 
+        // Gera url para confirmação
+        $url_confirmacao = URL::signedRoute('inscricao.confirmar', ['ni' => $resultado->id]);
 
         if($resultado){
             //Email solicitando confirmação (para checar se o email existe)
@@ -87,9 +111,45 @@ class InscricaoController extends Controller
                 'fromEmail' => env('MAIL_ADDRESS_RECEIVE'), //$request->input('email'),
                 'subject' => '[Inscrição Rikassa] '.$request->input('nome'),
                 'message' => $resultado,
+                'url' => $url_confirmacao,
             ]));
 
-            dd($resultado, $resultado->id,'email sent',$sent);
+            if($sent){
+                // Enviar o cadastro pro ADM Rikassa
+                $sent = Mail::to( env('MAIL_ADDRESS_RECEIVE'), env('MAIL_NAME_RECEIVE') )->send(new DadosCadastrais([
+                    'fromName' => env('MAIL_NAME_RECEIVE'), //$request->input('name'),
+                    'fromEmail' => env('MAIL_ADDRESS_RECEIVE'), //$request->input('email'),
+                    'subject' => '[Nova Inscrição Rikassa] '.$request->input('nome'),
+                    'message' => $resultado,
+                ]));
+
+                // APAGAR ARQUIVO DA FOTO
+                if($sent){
+                    try {
+                        $fotoPath = 'fotos'.DIRECTORY_SEPARATOR . $campos['foto'];
+                        // $normalizedPath = str_replace('/', DIRECTORY_SEPARATOR, $fotoPath);
+                        $filePath = storage_path($fotoPath);
+
+                        Log::error("Vamos apagar arquivo - ".$filePath);
+                        Storage::delete($fotoPath);
+                        if (Storage::exists($fotoPath)) {
+                            Storage::delete($fotoPath);
+                            Log::error("Passou pelo apagar arquivo");
+                        }
+
+                    } catch (\Exception $e) {
+                        // Log error or handle exception
+                        Log::error("Erro ao excluir arquivo: {$e->getMessage()}");
+                    }
+                    
+                }
+
+                return view('inscricao.mensagem_confirmar_email', compact('resultado'));
+                // dd($resultado, $resultado->id,'email sent',$sent);
+            } else {
+                echo "Houve um erro ao tentar enviar o email de confirmação para seu email.";
+            }
+            // return view('inscricao.mensagem_confirmar_email', compact('resultado'));
         } else {
             // return TblContratoAux::where('localizador_npj', $request['localizador_npj'])->orderBy('id')->get();
             echo "Não conseguiu salvar";
@@ -101,23 +161,180 @@ class InscricaoController extends Controller
     }
 
 
+    public function confirmar(Request $request, $id){
 
-    public function confirmar($email){
-        $dados = Inscricao::where('email', $email)->first();
-        if ( is_null($dados->confirmou_email) ){
-            // Confirma o email
-            $dados = Inscricao::where('email', $email)->update(['confirmou_email' => date('Y-m-d H:i:s')]);
-
-        } else {
-            // email já estava confirmado
-            $dataHoraAmericana = $dados->confirmou_email;
-            $hora_ja_confirmada = Carbon::createFromFormat('Y-m-d H:i:s', $dataHoraAmericana)->format('d/m/Y H:i:s');
+        // Valida a url
+        if (! $request->hasValidSignature()) {
+            abort(401);
         }
 
-        // Renderizar a tela para o pagamento
+        $dados = Inscricao::where('id', $id)->first();
 
+        $dataHoraAmericana = Null;
+        $hora_ja_confirmada = Null;
+
+        if ($dados) {
+            if ( is_null($dados->confirmou_email) ){
+                // Confirma o email
+                Inscricao::where('email', $dados['email'])->update(['confirmou_email' => date('Y-m-d H:i:s')]);
+                
+                // Cadastro na tabela de usuarios
+                $user['name'] = $dados->nome;
+                $user['email'] = $dados->email;
+                $user['password'] = Hash::make($dados->email);
+                $user = User::create( $user );
+
+
+                //
+
+            } else {
+                // email já estava confirmado
+                $dataHoraAmericana = $dados->confirmou_email;
+                $hora_ja_confirmada = Carbon::createFromFormat('Y-m-d H:i:s', $dataHoraAmericana)->format('d/m/Y H:i:s');
+
+                // Faz o login do novo usuário
+                $user = User::where('email', $dados->email)->first();
+            }
+
+            // Faz o login do usuário confirmado
+            Auth::login($user);
+
+            // Renderizar a tela para o pagamento
+            $link_pagamento = $this->mercadoPagoService->criarPreferencia();
+
+            return view('inscricao.confirmacao', compact('link_pagamento','user','dados','dataHoraAmericana','hora_ja_confirmada'));
+
+        } else {
+
+            echo 'Você ainda não completou sua inscrição no concurso!';
+
+        }
         // Exibir para a pessoa os próximos passos (enviar fotos e vídeos pelo zap)
     }
+
+
+    public function store_pix(Request $request)
+    {
+        if (Auth::check()) {
+            $this->rules_pix($request);
+
+            $filePath = $request->file('comprovante')->store('comprovantes');
+            $fileName = basename($filePath);
+            $campos = $request->except(['comprovante','_token']);
+
+            $campos['comprovante_pix'] = $fileName;
+            // $campos['pagou'] = True;
+
+            // - atualizar registro da inscrição com comprovante = true
+            $res = Inscricao::where('email', Auth::user()->email)->update($campos);
+
+            // - enviar email para rikassa com o comprovante de pagamento junto com os dados da inscrição
+            $inscricao = Inscricao::where('email', Auth::user()->email)->first();
+            
+            // Gera url para confirmação
+            $url_confirmacao = URL::signedRoute('inscricao.confirmar_pix', ['ni' => $inscricao->id]);
+
+            if($res){
+                // Enviar o comprovante PIX para o ADM Rikassa
+                $sent = Mail::to( env('MAIL_ADDRESS_RECEIVE'), env('MAIL_NAME_RECEIVE') )->send(new EnviarComprovanteAdm([
+                    'fromName' => env('MAIL_NAME_RECEIVE'), //$request->input('name'),
+                    'fromEmail' => env('MAIL_ADDRESS_RECEIVE'), //$request->input('email'),
+                    'subject' => '[PIX Inscrição Rikassa] '.$inscricao->nome,
+                    'message' => $inscricao,
+                    'url_confirmacao' => $url_confirmacao,
+                ]));
+
+                // APAGAR ARQUIVO DA FOTO
+                if($sent){
+                    try {
+                        $fotoPath = 'fotos'.DIRECTORY_SEPARATOR . $campos['comprovante'];
+                        // $normalizedPath = str_replace('/', DIRECTORY_SEPARATOR, $fotoPath);
+                        $filePath = storage_path($fotoPath);
+
+                        Log::error("Vamos apagar arquivo - ".$filePath);
+                        Storage::delete($fotoPath);
+                        if (Storage::exists($fotoPath)) {
+                            Storage::delete($fotoPath);
+                            Log::error("Passou pelo apagar arquivo");
+                        }
+
+                    } catch (\Exception $e) {
+                        // Log error or handle exception
+                        Log::error("Erro ao excluir arquivo: {$e->getMessage()}");
+                    }
+                }
+    
+                // dd($resultado, $resultado->id,'email sent',$sent);
+    
+                return view('inscricao.finalizacao_pix', compact('inscricao'));
+            // - apagar arquivo da pasta
+            }
+            
+            echo "Houve um erro ao salvar o comprovante. Por favor, tente novamente ou contate com o suporte";
+            
+        } else {
+            abort(401);
+        }
+    }
+
+
+    public function confirmar_pix(Request $request, $id){
+
+        // Valida a url
+        if (! $request->hasValidSignature()) {
+            abort(401);
+        }
+
+        $dados = Inscricao::where('id', $id)->first();
+
+        $dataHoraAmericana = Null;
+        $hora_ja_confirmada = Null;
+
+        if ($dados) {            
+            // Validar o pagamento via PIX
+            Inscricao::where('email', $dados['email'])->update(['pagou' => true]);
+
+            return view('inscricao.adm.validacao_pix', compact('dados'));
+
+        } 
+
+        echo "[InscricaoController: ".__LINE__.", ". $id .", ". $dados['email'] ." ] Erro! Contate o suporte!";
+        // Exibir para a pessoa os próximos passos (enviar fotos e vídeos pelo zap)
+    }
+
+
+
+
+    public function webhook(Request $request)
+    {
+        $this->mercadoPagoService->webhookMercadoPago($request);
+        /*
+        Status de pagamento	Descrição	Documento de identidade
+        APRO	Pagamento aprovado	(CPF) 12345678909
+        OTHE	Recusado por erro geral	(CPF) 12345678909
+        CONT	Pagamento pendente	-
+        CALL	Recusado com validação para autorizar	-
+        FUND	Recusado por quantia insuficiente	-
+        SECU	Recusado por código de segurança inválido	-
+        EXPI	Recusado por problema com a data de vencimento	-
+        FORM	Recusado por erro no formulário	
+        */
+    }
+
+    // public function webhook_success(Request $request)
+    // {
+    //     $this->mercadoPagoService->webhookMercadoPago($request);
+    // }
+
+    // public function webhook_failure(Request $request)
+    // {
+    //     $this->mercadoPagoService->webhookMercadoPago($request);
+    // }
+
+    // public function webhook_pending(Request $request)
+    // {
+    //     $this->mercadoPagoService->webhookMercadoPago($request);
+    // }
 
 
 

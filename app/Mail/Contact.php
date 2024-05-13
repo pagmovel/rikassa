@@ -17,7 +17,7 @@ class Contact extends Mailable
     /**
      * Create a new message instance.
      */
-    
+
     public function __construct(public readonly array $data)
     {
         //
@@ -33,9 +33,9 @@ class Contact extends Mailable
         return new Envelope(
             from: new Address($this->data['fromEmail'], $this->data['fromName']),
             subject: $this->data['subject'],
-            replyTo:[
-                new Address(env('MAIL_ADDRESS_RECEIVE'), env('MAIL_NAME_RECEIVE')),
-            ],
+//            replyTo:[
+//                new Address(env('MAIL_ADDRESS_RECEIVE'), env('MAIL_NAME_RECEIVE')),
+//            ],
         );
     }
 
@@ -57,6 +57,7 @@ class Contact extends Mailable
                 'dados' => $this->data['message'],
                 'nome'  => $this->data['message']['nome'],
                 'email'  => $this->data['message']['email'],
+                'url'  => $this->data['url'],
                 'nome_reduzido' => implode(' ', [$first = current($parts = explode(' ', trim($this->data['message']['nome']))), $last = end($parts)]),
             ],
         );
