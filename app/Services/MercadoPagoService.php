@@ -103,13 +103,13 @@ class MercadoPagoService {
         Log::debug($request->input());
         $dados = $request->input();
 
-        // $dados['inscricao_id'] = $request['external_reference'];
         $filteredArray = array_filter($dados, function ($value) {
             if ($value != 'null'){
                 return $value;
             }
         });
 
+        // Registra o pagamento no banco de dados
         return Pagamento::create($filteredArray);
 
         // return 

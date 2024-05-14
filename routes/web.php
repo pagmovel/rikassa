@@ -48,6 +48,9 @@ Route::middleware(['cors'])->group(function () {
     Route::get('/inscricao/confirmada/{ni}',[InscricaoController::class, 'confirmar'])->name('inscricao.confirmar');
     Route::get('/inscricao/confirmar_pix/{ni}',[InscricaoController::class, 'confirmar_pix'])->name('inscricao.confirmar_pix');
     
+    // Tentar novamente pagamento pagamento
+    Route::get('/inscricao/pagamento/{ni}',[InscricaoController::class, 'pagamento'])->name('inscricao.pagamento');
+
     Route::get('/mercadopago/webhook/failure', [InscricaoController::class, 'webhook'])->name('webhook');
     Route::get('/mercadopago/webhook/pending', [InscricaoController::class, 'webhook'])->name('webhook');
     Route::get('/mercadopago/webhook/success', [InscricaoController::class, 'webhook'])->name('webhook');

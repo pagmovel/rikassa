@@ -37,7 +37,7 @@ X (twitter):                     <strong>{{ $dados['x_twitter'] }}</strong>
             <strong>*** Pagamento Confirmado! ***</strong>
         </p>
         <br>
-        <p>A imagem doparticipante foi enviada por email com o título: <strong>[Nova Inscrição Rikassa] {{ $dados['nome'] }}</strong>, enviado em {{ \Carbon\Carbon::parse($dados['confirmou_email'])->format('d/m/Y') }}.
+        <p>A foto do participante (que não mantemos armazenada) já tinha sido enviada por email com o título: <strong>[Nova Inscrição Rikassa] {{ $dados['nome'] }}</strong> em {{ \Carbon\Carbon::parse($dados['confirmou_email'])->format('d/m/Y') }}.
         </p>
         
     </div>

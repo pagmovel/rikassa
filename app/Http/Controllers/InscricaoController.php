@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use phpDocumentor\Reflection\PseudoTypes\True_;
+use App\Mail\EnviarEmailAoParticipanteConfirmandoPagamento;
+use App\Mail\EmailPagamentoNaoAutorizado;
 
 class InscricaoController extends Controller
 {
@@ -109,7 +111,7 @@ class InscricaoController extends Controller
             $sent = Mail::to($request->input('email'), $request->input('nome'))->send(new Contact([
                 'fromName' => env('MAIL_NAME_RECEIVE'), //$request->input('name'),
                 'fromEmail' => env('MAIL_ADDRESS_RECEIVE'), //$request->input('email'),
-                'subject' => '[Inscrição Rikassa] '.$request->input('nome'),
+                'subject' => "[Inscrição Concurso Miss Rikassa D'Lux] ".$request->input('nome'),
                 'message' => $resultado,
                 'url' => $url_confirmacao,
             ]));
@@ -119,7 +121,7 @@ class InscricaoController extends Controller
                 $sent = Mail::to( env('MAIL_ADDRESS_RECEIVE'), env('MAIL_NAME_RECEIVE') )->send(new DadosCadastrais([
                     'fromName' => env('MAIL_NAME_RECEIVE'), //$request->input('name'),
                     'fromEmail' => env('MAIL_ADDRESS_RECEIVE'), //$request->input('email'),
-                    'subject' => '[Nova Inscrição Rikassa] '.$request->input('nome'),
+                    'subject' => "[Nova Inscrição Concurso Miss Rikassa D'Lux] ".$request->input('nome'),
                     'message' => $resultado,
                 ]));
 
@@ -239,7 +241,7 @@ class InscricaoController extends Controller
                 $sent = Mail::to( env('MAIL_ADDRESS_RECEIVE'), env('MAIL_NAME_RECEIVE') )->send(new EnviarComprovanteAdm([
                     'fromName' => env('MAIL_NAME_RECEIVE'), //$request->input('name'),
                     'fromEmail' => env('MAIL_ADDRESS_RECEIVE'), //$request->input('email'),
-                    'subject' => '[PIX Inscrição Rikassa] '.$inscricao->nome,
+                    'subject' => "[PIX Inscrição Concurso Miss Rikassa D'Lux] ".$inscricao->nome,
                     'message' => $inscricao,
                     'url_confirmacao' => $url_confirmacao,
                 ]));
@@ -294,6 +296,10 @@ class InscricaoController extends Controller
             // Validar o pagamento via PIX
             Inscricao::where('email', $dados['email'])->update(['pagou' => true]);
 
+            // Enviar email ao participante informando que sua inscrição foi completada
+            $this->EnviarEmailConfirmandoInscricaoAposPagamento($dados);
+
+            // Exibir tela ao administrador com todos os dados do participante
             return view('inscricao.adm.validacao_pix', compact('dados'));
 
         } 
@@ -304,22 +310,110 @@ class InscricaoController extends Controller
 
 
 
+    public function EnviarEmailConfirmandoInscricaoAposPagamento($dados) 
+    {
+        // Enviar email ap participante com a aprovação do pagamento e confirmação da inscrição no concurso
+        $sent = Mail::to( $dados['email'], $dados['nome'] )->send(new EnviarEmailAoParticipanteConfirmandoPagamento([
+            'fromName' => env('MAIL_NAME_RECEIVE'), //$request->input('name'),
+            'fromEmail' => env('MAIL_ADDRESS_RECEIVE'), //$request->input('email'),
+            'subject' => "[Concurso Miss Rikassa D'Lux] CONFIRMAÇÃO DE PAGAMENTO",
+            'message' => $dados,
+        ]));
+        return;
+    }
 
-    public function webhook(Request $request)
+
+
+    
+    // Abrir tela do Mercado Pago quando o pagamento for negado.
+    // Link de aceeso vindo do email 
+    public function pagamento(Request $request, $id){
+
+        // Valida a url
+        if (! $request->hasValidSignature()) {
+            abort(401);
+        }
+
+        $dados = Inscricao::where('id', $id)->first();
+
+        if ($dados) {
+            // Faz o login do novo usuário
+            $user = User::where('email', $dados->email)->first();
+
+            // Faz o login do usuário confirmado
+            Auth::login($user);
+
+            // Renderizar a tela para o pagamento
+            $link_pagamento = $this->mercadoPagoService->criarPreferencia($dados['id']);
+
+            return view('inscricao.pagamento', compact('link_pagamento','user','dados'));
+
+        } else {
+
+            echo 'Você ainda não completou sua inscrição no concurso!';
+
+        }
+        // Exibir para a pessoa os próximos passos (enviar fotos e vídeos pelo zap)
+    }
+
+
+
+    // Este webrook trata os pagamentos em tela, executados pelo cliente
+    public function webhook(Request $request) 
     {
         $pagto = $this->mercadoPagoService->webhookMercadoPago($request);
 
-        dd($pagto);
+        $dados = Inscricao::where('id', $pagto['external_reference'])->first();
+
+        if ($pagto->collection_status == 'approved'){
+
+            // Enviar email de aprovação
+            $this->EnviarEmailConfirmandoInscricaoAposPagamento($dados);
+
+            // abrir pagina com mensagem de aprovação
+            return view('inscricao.pagamento_aprovado', compact('dados'));
+
+        } elseif ($pagto->collection_status == 'rejected'){
+            // Gera url para confirmação
+            $url_confirmacao = URL::signedRoute('inscricao.pagamento', ['ni' => $dados->id]);
+            $status = 'COMPRA NEGADA';
+            // enviar email informando que o pagamento foi recusado
+            $sent = Mail::to($dados['email'], $dados['nome'])->send(new EmailPagamentoNaoAutorizado([
+                'fromName' => env('MAIL_NAME_RECEIVE'), //$request->input('name'),
+                'fromEmail' => env('MAIL_ADDRESS_RECEIVE'), //$request->input('email'),
+                'subject' => "[Inscrição Concurso Miss Rikassa D'Lux] ".$dados['nome'],
+                'message' => $dados,
+                'url' => $url_confirmacao,
+            ]));
+
+            // Renderizar a tela para o pagamento
+            $link_pagamento = $this->mercadoPagoService->criarPreferencia($dados['id']);
+
+            // Abrir tela pagamento
+            return view('inscricao.pagamento', compact('status','link_pagamento','dados'));
+
+        } elseif ($pagto->collection_status == 'in_process'){  // aguardando autorização
+            // Aguardando Confirmação do Pagamento
+            return view('inscricao.pagamento_analise', compact('dados'));
+        }
+        
+        // dd($pagto,$dados);
         /*
-        Status de pagamento	Descrição	Documento de identidade
-        APRO	Pagamento aprovado	(CPF) 12345678909
-        OTHE	Recusado por erro geral	(CPF) 12345678909
-        CONT	Pagamento pendente	-
-        CALL	Recusado com validação para autorizar	-
-        FUND	Recusado por quantia insuficiente	-
-        SECU	Recusado por código de segurança inválido	-
-        EXPI	Recusado por problema com a data de vencimento	-
-        FORM	Recusado por erro no formulário	
+
+        Cartão              Número                  Código de segurança         Data de vencimento
+        Mastercard          5031 4332 1540 6351     123                         11/25
+        Visa                4235 6477 2802 5682     123                         11/25
+        American Express    3753 651535 56885       1234                        11/25
+
+        Status de pagamento	    Descrição	                                        Documento de identidade
+        APRO	                Pagamento aprovado	                                (CPF) 12345678909
+        OTHE	                Recusado por erro geral	                            (CPF) 12345678909
+        CONT	                Pagamento pendente	                                -
+        CALL	                Recusado com validação para autorizar	            -
+        FUND	                Recusado por quantia insuficiente	                -
+        SECU	                Recusado por código de segurança inválido	        -
+        EXPI	                Recusado por problema com a data de vencimento	    -
+        FORM	                Recusado por erro no formulário	
         */
     }
 
@@ -331,7 +425,30 @@ class InscricaoController extends Controller
         
         Log::debug($request->input());
 
-        // $pagto = $this->mercadoPagoService->webhookMercadoPago($request);
+        $pagto = $this->mercadoPagoService->webhookMercadoPago($request);
+        $dados = Inscricao::where('id', $pagto['external_reference'])->first();
+
+        if ($pagto->collection_status == 'approved'){
+
+            // Enviar email de aprovação
+            $this->EnviarEmailConfirmandoInscricaoAposPagamento($dados);
+
+        } elseif ($pagto->collection_status == 'rejected'){
+            // Gera url para confirmação
+            $url_confirmacao = URL::signedRoute('inscricao.pagamento', ['ni' => $dados->id]);
+            $status = 'COMPRA NEGADA';
+            // enviar email informando que o pagamento foi recusado
+            $sent = Mail::to($dados['email'], $dados['nome'])->send(new EmailPagamentoNaoAutorizado([
+                'fromName' => env('MAIL_NAME_RECEIVE'), //$request->input('name'),
+                'fromEmail' => env('MAIL_ADDRESS_RECEIVE'), //$request->input('email'),
+                'subject' => "[Inscrição Concurso Miss Rikassa D'Lux] ".$dados['nome'],
+                'message' => $dados,
+                'url' => $url_confirmacao,
+            ]));
+
+        } 
+
+        // 
 
         // dd($pagto);
         /*
@@ -365,44 +482,11 @@ class InscricaoController extends Controller
 
 
 
-    public function finalizarCompra()
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
+    
 
 // CONFIRMAÇÃO DE PAGAMENTO
 
         // Prezada [Nome da Participante], estamos entusiasmados em confirmar que seu pagamento para o Concurso de Beleza foi recebido com sucesso. Como parte do nosso processo de comunicação contínua e para mantê-la informada sobre cada passo do concurso, você será adicionada a um grupo exclusivo de WhatsApp. Enviamos o link de acesso ao grupo para o e-mail cadastrado. Agradecemos por escolher participar do nosso concurso e estamos ansiosos para vê-la brilhar. Atenciosamente, Equipe Rikassa.
-    }
+    
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }
