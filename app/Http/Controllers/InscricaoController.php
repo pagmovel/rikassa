@@ -419,8 +419,13 @@ class InscricaoController extends Controller
 
     
 
-
     public function mpwebhook(Request $request)
+    {
+        Log::debug($request->input());
+    }
+
+
+    public function mpwebhook2(Request $request)
     {
         
         Log::debug($request->input());
