@@ -1,9 +1,11 @@
 <?php
 
-use App\Http\Controllers\EventosController;
-use App\Http\Controllers\InscricaoController;
-use App\Http\Controllers\ProfileController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\EventosController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\InscricaoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -60,7 +62,12 @@ Route::middleware(['cors'])->group(function () {
 });
 
 
-Route::post('/mercadopago/mpwebhook', [InscricaoController::class, 'mpwebhook'])->name('mpwebhook');
+// Route::post('/mercadopago/mpwebhook', [InscricaoController::class, 'mpwebhook'])->name('mpwebhook');
+Route::post('/mercadopago/mpwebhook', function (Request $request) {
+    Log::debug($request->input());
+})->name('payment.update');
+
+
 // Route::get('/dashboard', function () {
 //     return view('dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboard');
