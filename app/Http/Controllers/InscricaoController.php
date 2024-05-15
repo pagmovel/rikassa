@@ -429,6 +429,22 @@ class InscricaoController extends Controller
 
         $pagamento = Pagamento::where('merchant_order_id', $merchant_order_id)->first();
 
+        $status = $pagamento->status; 
+        
+        Log::debug("status: ".$status); return ;
+
+        /* 
+        payment.created	        Criação de pagamento
+        payment.updated	        Atualização de pagamento
+        state_FINISHED	        Processo de pagamento concluído
+        state_CANCELED	        Processo de pagamento cancelado
+        state_ERROR	            Ocorreu um erro ao processar a tentativa de pagament
+        updated	                Reclamações feitas pelas vendas
+
+
+
+
+
         $inscricao = Inscricao::where('id', $pagamento->external_reference)->first();
         Log::debug($pagamento);
         Log::debug('-------------------------------------\n');
@@ -438,6 +454,9 @@ class InscricaoController extends Controller
             // Se encontrou a inscrição, envie email para o administrador e para o cliente
             Log::debug("Encontrou o cliente: ".$inscricao->nome, $request->input());
         }
+    //  data: {"description":"desc","merchant_order":45679012,"payment_id":123454321,"site_id":"MLA"},
+
+
 
         // dd($request);
         // Log::debug($request->input());
