@@ -432,7 +432,7 @@ class InscricaoController extends Controller
         Log::debug($pagamento->toArray());
         $inscricao = Inscricao::where('id', $pagamento->id)->first();
 
-        if (count($inscricao) > 0){
+        if ($inscricao){
             // Se encontrou a inscrição, envie email para o administrador e para o cliente
             Log::debug("Encontrou o cliente: ".$inscricao->nome, $request->input());
         }
