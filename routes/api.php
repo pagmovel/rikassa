@@ -16,9 +16,9 @@ use App\Http\Controllers\InscricaoController;
 |
 */
 // Route::post('/mercadopago/mpwebhook', [InscricaoController::class, 'mpwebhook'])->name('mpwebhook');
-Route::post('/mercadopago/mpwebhook', function (Request $request) {
-    Log::debug($request->input());
-})->name('payment.update');
+// Route::post('/mercadopago/mpwebhook', function (Request $request) {
+//     Log::debug($request->input());
+// })->name('payment.update');
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
