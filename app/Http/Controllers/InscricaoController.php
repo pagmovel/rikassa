@@ -422,7 +422,7 @@ class InscricaoController extends Controller
 
     public function mpwebhook(Request $request)
     {
-        $payment_id = $request->input('data')['id'];
+        $payment_id = $request->input('data')[0]['id'];
 
         $pagamento = Pagamento::where('payment_id', $payment_id)->first();
         $inscricao = Inscricao::where('id', $pagamento->id)->first();
