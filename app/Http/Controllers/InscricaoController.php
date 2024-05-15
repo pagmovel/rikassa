@@ -424,13 +424,13 @@ class InscricaoController extends Controller
     {
         // Log::debug($request->input('data')['id']); return ;
         // return;
-        $payment_id = $request->input('data')['id'];
+        $merchant_order = $request->input('data')['id'];
         // Log::debug("payment_id: ".$payment_id); return ;
 
-        $pagamento = Pagamento::where('external_reference', (int) $payment_id)
-                                ->orderby('id', 'desc')->first();
-        $inscricao = Inscricao::where('id', $pagamento->id)->first();
-        Log::debug($inscricao);
+        $pagamento = Pagamento::where('merchant_order', $merchant_order)->first();
+
+        $inscricao = Inscricao::where('external_reference', $pagamento->id)->first();
+        Log::debug($pagamento,$inscricao);
 
         if ($inscricao !== null){
             // Se encontrou a inscrição, envie email para o administrador e para o cliente
