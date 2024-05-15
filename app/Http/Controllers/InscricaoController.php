@@ -430,7 +430,7 @@ class InscricaoController extends Controller
         $pagamento = Pagamento::where('external_reference', (int) $payment_id)
                                 ->orderby('id', 'desc')->first();
         $inscricao = Inscricao::where('id', $pagamento->id)->first();
-        Log::debug($inscricao->toArray());
+        Log::debug($inscricao);
 
         if ($inscricao !== null){
             // Se encontrou a inscrição, envie email para o administrador e para o cliente
