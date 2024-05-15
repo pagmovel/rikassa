@@ -438,7 +438,7 @@ class InscricaoController extends Controller
         }
 
         // dd($request);
-        Log::debug($request->input());
+        // Log::debug($request->input());
         // array (
     //     {
             // action: "payment.update",
