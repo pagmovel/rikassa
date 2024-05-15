@@ -429,7 +429,7 @@ class InscricaoController extends Controller
 
         $pagamento = Pagamento::where('merchant_order_id', $merchant_order_id)->first();
 
-        $inscricao = Inscricao::where('external_reference', $pagamento->id)->first();
+        $inscricao = Inscricao::where('id', $pagamento->external_reference)->first();
         Log::debug($pagamento,$inscricao);
 
         if ($inscricao !== null){
