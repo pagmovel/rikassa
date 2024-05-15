@@ -44,6 +44,7 @@
 
 </head>
 <body class="container">
+    <x-menu />
     <div class="">
         <div class="row">
             <h2 class="mb-5 text-center titulo">Formulário de Inscrição</h2>

@@ -1,6 +1,7 @@
 @extends('layouts.rikassa')
 @section('title', 'Formulário de Inscrição')
 @section('content')
+    <x-menu />
     <div class="">
         <div class="row">
             <h2 class="mb-5 text-center titulo">Formulário de Inscrição</h2>
