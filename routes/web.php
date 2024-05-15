@@ -62,10 +62,11 @@ Route::middleware(['cors'])->group(function () {
 });
 
 
-// Route::post('mpwebhook', [InscricaoController::class, 'mpwebhook'])->name('mpwebhook');
-Route::post('mpwebhook', function (Request $request) {
-    Log::debug($request->input());
-});
+Route::post('mpwebhook', [InscricaoController::class, 'mpwebhook'])->name('mpwebhook');
+// Route::post('mpwebhook', function (Request $request) {
+//     Log::debug($request->input());
+
+// });
 
 // Route::get('/dashboard', function () {
 //     return view('dashboard');

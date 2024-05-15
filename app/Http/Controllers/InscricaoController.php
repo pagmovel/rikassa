@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Mail\Contact;
 use App\Models\Inscricao;
+use App\Models\Pagamento;
 use Illuminate\Http\Request;
 use App\Mail\DadosCadastrais;
 use App\Mail\EnviarComprovanteAdm;
@@ -16,9 +17,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use App\Mail\EmailPagamentoNaoAutorizado;
 use phpDocumentor\Reflection\PseudoTypes\True_;
 use App\Mail\EnviarEmailAoParticipanteConfirmandoPagamento;
-use App\Mail\EmailPagamentoNaoAutorizado;
 
 class InscricaoController extends Controller
 {
@@ -421,8 +422,30 @@ class InscricaoController extends Controller
 
     public function mpwebhook(Request $request)
     {
-        dd($request);
+        $payment_id = $request->input('data')['id'];
+
+        $pagamento = Pagamento::where('payment_id', $payment_id)->first();
+        $inscricao = Inscricao::where('id', $pagamento->id)->first();
+
+        if ($inscricao){
+            // Se encontrou a inscrição, envie email para o administrador e para o cliente
+            Log::debug("Encontrou o cliente: ".$inscricao->nome, $request->input());
+        }
+
+        // dd($request);
         Log::debug($request->input());
+        // array (
+    //     {
+            // action: "payment.update",
+            // api_version: "v1",
+            // data: {"id":"86"},
+            // date_created: "2021-11-01T02:02:02Z",
+            // id: "123456",
+            // live_mode: false,
+            // type: "payment",
+            // user_id: 94582170
+    //      }
+    //   )
     }
 
 
