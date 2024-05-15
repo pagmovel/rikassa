@@ -428,7 +428,7 @@ class InscricaoController extends Controller
         // Log::debug("payment_id: ".$payment_id); return ;
 
         $pagamento = Pagamento::where('external_reference', (int) $payment_id)
-                                ->orderby('id')->last()->toArray();
+                                ->orderby('id', 'desc')->get()->toArray();
         
         $inscricao = Inscricao::where('id', $pagamento->id)->first()->toArray();
 
