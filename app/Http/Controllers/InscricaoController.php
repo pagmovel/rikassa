@@ -429,7 +429,7 @@ class InscricaoController extends Controller
 
         $pagamento = Pagamento::where('merchant_order_id', $merchant_order_id)->first();
 
-        $status = $request->input('data'); //$pagamento->status; 
+        $status = $request->input('action'); //$pagamento->status; 
         
         Log::debug("status: ".$status); return ;
 
