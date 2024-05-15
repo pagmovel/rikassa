@@ -56,10 +56,10 @@ Route::middleware(['cors'])->group(function () {
     Route::get('/mercadopago/webhook/success', [InscricaoController::class, 'webhook'])->name('webhook');
 
     Route::get('/mercadopago/mpwebhook', [InscricaoController::class, 'mpwebhook'])->name('mpwebhook');
-    Route::post('/mercadopago/mpwebhook', [InscricaoController::class, 'mpwebhook'])->name('mpwebhook');
     
 });
 
+Route::post('/mercadopago/mpwebhook', [InscricaoController::class, 'mpwebhook'])->name('mpwebhook');
 // Route::get('/dashboard', function () {
 //     return view('dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboard');
