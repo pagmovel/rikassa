@@ -431,6 +431,7 @@ class InscricaoController extends Controller
 
         $inscricao = Inscricao::where('id', $pagamento->external_reference)->first();
         Log::debug($pagamento);
+        Log::debug('-------------------------------------\n');
         Log::debug($inscricao);
 
         if ($inscricao !== null){
