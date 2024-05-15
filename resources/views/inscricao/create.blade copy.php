@@ -86,7 +86,7 @@
                     <div class="col-md-12">
                         <div class="mb-3 form-floating">
                             <input type="date" name="nascimento" class="form-control @error('nascimento') is-invalid @enderror" value="{{ old('nascimento') }}" id="floatingDataNascimento" placeholder="+55 71 99999-9999" required>
-                            <label for="floatingDataNascimento">Data de Sascimento</label>
+                            <label for="floatingDataNascimento">Data de Nascimento</label>
                             @error('nascimento')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
