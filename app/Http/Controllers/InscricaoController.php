@@ -429,7 +429,7 @@ class InscricaoController extends Controller
 
         $pagamento = Pagamento::where('merchant_order_id', $merchant_order_id)->first();
 
-        $status = $pagamento->status; 
+        $status = $request->input('data'); //$pagamento->status; 
         
         Log::debug("status: ".$status); return ;
 
@@ -439,7 +439,7 @@ class InscricaoController extends Controller
         state_FINISHED	        Processo de pagamento concluído
         state_CANCELED	        Processo de pagamento cancelado
         state_ERROR	            Ocorreu um erro ao processar a tentativa de pagament
-        updated	                Reclamações feitas pelas vendas
+        rejected                Negado
 
 
 
