@@ -424,14 +424,15 @@ class InscricaoController extends Controller
     {
         // Log::debug($request->input('data')['id']); return ;
         // return;
+        $status = $request->input('action'); //$pagamento->status; 
+        Log::debug("status: ".$status); return ;
+
         $merchant_order_id = $request->input('data')['id'];
         // Log::debug("payment_id: ".$payment_id); return ;
 
         $pagamento = Pagamento::where('merchant_order_id', $merchant_order_id)->first();
 
-        $status = $request->input('action'); //$pagamento->status; 
         
-        Log::debug("status: ".$status); return ;
 
         /* 
         payment.created	        Criação de pagamento
