@@ -2,15 +2,17 @@
 
 namespace App\Services;
 
-use App\Models\Inscricao;
-use App\Models\Pagamento;
 use MercadoPago\SDK;
 use MercadoPago\Item;
+use App\Models\Inscricao;
+use App\Models\Pagamento;
 use Illuminate\Http\Request;
 use MercadoPago\MercadoPagoConfig;
+use MercadoPago\Resources\Payment;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use MercadoPago\Resources\Preference;
+use MercadoPago\Client\Payment\PaymentClient;
 use MercadoPago\Client\Preference\PreferenceClient;
 
 class MercadoPagoService {
@@ -92,10 +94,30 @@ class MercadoPagoService {
     }
 
 
-    public function obterPago()
-    {
-        //
+    public function VerificarStatusPagamento($id) 
+    { // https://www.youtube.com/watch?app=desktop&v=HCbk9vc4Wt0&ab_channel=LuanAlves
+
+        $client = new PaymentClient();
+
+        $payment = $client->get($id);
+
+        Log::debug("payment: ".$payment);
+
+        if (isset($payment->id)){            
+            $inscricao = Inscricao::where("id", $payment->external_reference)->first();
+
+            Log::debug("\$inscricao: ".$inscricao);
+            Log::debug("\$payment->status: ".$payment->status);
+
+            if ( $inscricao !== Null && $payment->status == 'approved'){
+                Log::debug('Tem scrição e está '.$payment->status);
+
+            } else if ( $inscricao !== Null && $payment->status == 'rejected'){
+                Log::debug('Tem scrição e está '.$payment->status);
+            }
+        }
     }
+
 
     public function webhookMercadoPago(Request $request)
     {

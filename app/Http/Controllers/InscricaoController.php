@@ -10,6 +10,8 @@ use App\Models\Pagamento;
 use Illuminate\Http\Request;
 use App\Mail\DadosCadastrais;
 use App\Mail\EnviarComprovanteAdm;
+use MercadoPago\MercadoPagoConfig;
+use MercadoPago\Resources\Payment;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use App\Services\MercadoPagoService;
@@ -422,15 +424,35 @@ class InscricaoController extends Controller
 
     public function mpwebhook(Request $request)
     {
+        Log::debug("\$_POST['type']: ".$_POST["type"]);
+
+        if ($_POST["type"] == "payment"){ 
+            if (isset($request->input('data')['id'])){
+                Log::debug("\$request->input('data')['id']: ".$request->input('data')['id']);
+                $this->mercadoPagoService->VerificarStatusPagamento($request->input('data')['id']);
+            }
+        }
+
+
         // Log::debug($request->input('data')['id']); return ;
         // return;
-        $status = $request->input('action'); //$pagamento->status; 
-        Log::debug("status: ".$status); return ;
-
-        $merchant_order_id = $request->input('data')['id'];
-        // Log::debug("payment_id: ".$payment_id); return ;
-
-        $pagamento = Pagamento::where('merchant_order_id', $merchant_order_id)->first();
+        // if (isset($request->input('action'))){
+        //     $action = $request->input('action'); //$pagamento->status; 
+        //     $validStatuses = ['state_CANCELED', 'state_ERROR', 'rejected'];
+    
+        //     if (in_array($action, $validStatuses)) { // se a operação não foi autorizada/cancelada/ou deu erro
+        //         echo "O action é um dos estados especificados.";
+        //     } else if ($action == 'state_FINISHED'){ // pagamento concluido
+        //         echo "O action não é um dos estados especificados.";
+        //     }
+    
+        //     Log::debug("action: ".$action); return ;
+    
+        //     $merchant_order_id = $request->input('data')['id'];
+        //     // Log::debug("payment_id: ".$payment_id); return ;
+    
+        //     $pagamento = Pagamento::where('merchant_order_id', $merchant_order_id)->first();
+        }
 
         
 
