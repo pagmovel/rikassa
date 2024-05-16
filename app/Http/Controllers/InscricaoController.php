@@ -424,7 +424,7 @@ class InscricaoController extends Controller
 
     public function mpwebhook(Request $request)
     {
-        Log::debug("\$_POST['type']: ".$_POST["type"]);
+        Log::debug("\$_POST['type']: ".$request);
 
         if ($_POST["type"] == "payment"){ 
             if (isset($request->input('data')['id'])){
