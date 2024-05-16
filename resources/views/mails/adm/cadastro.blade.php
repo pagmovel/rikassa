@@ -4,7 +4,13 @@
 
 <x-logo />
 <br><br>
-<h2>Olá Administrador! Temos uma nova inscrição do concurso RIKASSA</h2>
+@if (isset($negado))
+    <h2>Prezado Administrador!<br>Temos uma inscrição do concurso Miss Rikassa D'Lux com Pagamento Não Autorizado.</h2>
+@elseif ($status == 'PAGAMENTO APROVADO')
+    <h2>Prezado Administrador!<br>A seguinte inscrição do concurso Miss Rikassa D'Lux teve o Pagamento Aprovado.</h2>
+@else
+    <h2>Prezado Administrador!<br>Temos uma nova inscrição do concurso Miss Rikassa D'Lux.</h2>
+@endif
 <br>
 <pre>
 Nome: <strong>{{ $dados['nome'] }}</strong>
@@ -25,7 +31,7 @@ Facebook: <strong>{{ $dados['facebook'] }}</strong>
 X (twitter): <strong>{{ $dados['x_twitter'] }}</strong>
 </pre>
 <p>
-    <strong>*** Aguardando pagamento! ***</strong>
+    <strong style="color: red">*** {{ $status }}! ***</strong>
 </p>
 
 

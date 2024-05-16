@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use Illuminate\Support\Arr;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\Log;
@@ -41,15 +42,31 @@ class DadosCadastrais extends Mailable
      */
     public function content(): Content
     {
+        $withData = [
+            'dados' => $this->data['message'],
+            'status' => $this->data['status'],
+        ];
+    
+        // Adiciona 'negado' somente se existir em $this->data
+        if (Arr::has($this->data, 'negado')) {
+            $withData['negado'] = $this->data['negado'];
+        }
+    
         return new Content(
-            // html: view('mails.enviar_inscricao', ['data' => $this->data['message']])->render(),
-            // $nome_simples = explode( " ", $this->data['message']['name'] );
-            // $nome_simples = $nome_simples[0] .' '.end($nome_simples);
             view: 'mails.adm.cadastro',
-            with: [
-                'dados' => $this->data['message'],
-            ],
+            with: $withData
         );
+        // return new Content(
+        //     // html: view('mails.enviar_inscricao', ['data' => $this->data['message']])->render(),
+        //     // $nome_simples = explode( " ", $this->data['message']['name'] );
+        //     // $nome_simples = $nome_simples[0] .' '.end($nome_simples);
+        //     view: 'mails.adm.cadastro',
+        //     with: [
+        //         'dados' => $this->data['message'],
+        //         'status' => $this->data['status'],
+        //         'negado' => $this->data['negado']
+        //     ],
+        // );
     }
 
     /**
@@ -58,24 +75,30 @@ class DadosCadastrais extends Mailable
      * @return array<int, \Illuminate\Mail\Mailables\Attachment>
      */
     public function attachments(): array
-    {     
-        $fotoPath = 'app'.DIRECTORY_SEPARATOR.'fotos'.DIRECTORY_SEPARATOR . $this->data['message']->foto;
-        // $normalizedPath = str_replace('/', DIRECTORY_SEPARATOR, $fotoPath);
-        $filePath = storage_path($fotoPath);
+    {   
+        
+            $fotoPath = 'app'.DIRECTORY_SEPARATOR.'fotos'.DIRECTORY_SEPARATOR . $this->data['message']->foto;
+            // $normalizedPath = str_replace('/', DIRECTORY_SEPARATOR, $fotoPath);
+            $filePath = storage_path($fotoPath);
+    
+            if (!file_exists($filePath)) {
+                return [];
+                // throw new \Exception("O arquivo não existe: {$filePath}");
+            }
+    
+            if (!is_readable($filePath)) {
+                return [];
+                // throw new \Exception("O arquivo não tem permissão de leitura: {$filePath}");
+            }
 
-        if (!file_exists($filePath)) {
-            throw new \Exception("O arquivo não existe: {$filePath}");
-        }
+            return [
+                Attachment::fromPath(storage_path($fotoPath))
+            ];
 
-        if (!is_readable($filePath)) {
-            throw new \Exception("O arquivo não tem permissão de leitura: {$filePath}");
-        }
+        
 
 
-        return [
-            // Attachment::fromPath(storage_path('app/fotos/' . $this->data['message']->foto))
-            Attachment::fromPath(storage_path($fotoPath))
-        ];
+        
         
         
     }

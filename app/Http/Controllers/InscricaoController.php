@@ -46,7 +46,7 @@ class InscricaoController extends Controller
     {
         $rules =  [
             'nome' => 'required',
-            // 'email' => 'required|email|unique:inscricao,email', // Adicionando a regra unique para o campo email na tabela inscricao
+            'email' => 'required|email|unique:inscricao,email', // Adicionando a regra unique para o campo email na tabela inscricao
             'whatsapp' => 'required',
             'nascimento' => 'required',
             'altura' => 'required',
@@ -72,13 +72,7 @@ class InscricaoController extends Controller
 
     }
 
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
+    
 
     /**
      * Show the form for creating a new resource.
@@ -126,6 +120,7 @@ class InscricaoController extends Controller
                     'fromEmail' => env('MAIL_ADDRESS_RECEIVE'), //$request->input('email'),
                     'subject' => "[Nova Inscrição Concurso Miss Rikassa D'Lux] ".$request->input('nome'),
                     'message' => $resultado,
+                    'status' => 'Aguardando Pagamento'
                 ]));
 
                 // APAGAR ARQUIVO DA FOTO
@@ -256,7 +251,6 @@ class InscricaoController extends Controller
                         // $normalizedPath = str_replace('/', DIRECTORY_SEPARATOR, $fotoPath);
                         $filePath = storage_path($fotoPath);
 
-                        Log::error("Vamos apagar arquivo - ".$filePath);
                         Storage::delete($fotoPath);
                         if (Storage::exists($fotoPath)) {
                             Storage::delete($fotoPath);
@@ -365,6 +359,9 @@ class InscricaoController extends Controller
     public function webhook(Request $request) 
     {
         $pagto = $this->mercadoPagoService->webhookMercadoPago($request);
+        // if ($pagto === False){
+        //     return;
+        // }
 
         $dados = Inscricao::where('id', $pagto['external_reference'])->first();
 
@@ -372,6 +369,15 @@ class InscricaoController extends Controller
 
             // Enviar email de aprovação
             $this->EnviarEmailConfirmandoInscricaoAposPagamento($dados);
+
+            // ENVIA EMAIL PRO ADMINISTRADOR CONFIRMANDO PAGAMENTO
+            $sent = Mail::to( env('MAIL_ADDRESS_RECEIVE'), env('MAIL_NAME_RECEIVE') )->send(new DadosCadastrais([
+                'fromName' => env('MAIL_NAME_RECEIVE'), //$request->input('name'),
+                'fromEmail' => env('MAIL_ADDRESS_RECEIVE'), //$request->input('email'),
+                'subject' => "[PAGAMENTO APROVADO - Inscrição Concurso Miss Rikassa D'Lux] ".$dados['nome'] ,
+                'message' => $dados,
+                'status' => 'PAGAMENTO APROVADO'
+            ]));
 
             // abrir pagina com mensagem de aprovação
             return view('inscricao.pagamento_aprovado', compact('dados'));
@@ -389,6 +395,8 @@ class InscricaoController extends Controller
                 'url' => $url_confirmacao,
             ]));
 
+            
+
             // Renderizar a tela para o pagamento
             $link_pagamento = $this->mercadoPagoService->criarPreferencia($dados['id']);
 
@@ -398,6 +406,13 @@ class InscricaoController extends Controller
         } elseif ($pagto->collection_status == 'in_process'){  // aguardando autorização
             // Aguardando Confirmação do Pagamento
             return view('inscricao.pagamento_analise', compact('dados'));
+        } else {
+            $status = 'COMPRA NEGADA';
+            // Renderizar a tela para o pagamento
+            $link_pagamento = $this->mercadoPagoService->criarPreferencia($dados['id']);
+
+            // Abrir tela pagamento
+            return view('inscricao.pagamento', compact('status','link_pagamento','dados'));
         }
         
         // dd($pagto,$dados);
@@ -423,8 +438,13 @@ class InscricaoController extends Controller
     
 
     public function mpwebhook(Request $request)
+    // public function mpwebhook(Request $request, $id)
     {
-        Log::debug("\$_POST['type']: ".$request);
+        // $request['type'] = 'payment';
+        // $request['data'] = ['id' => $id];
+        // $request['data']['id'] = $id;
+        // dd($request->all());
+        // Log::debug("\$_POST['type']: ".$request->all());
 
         if ($request["type"] == "payment"){ 
             if (isset($request->input('data')['id'])){
@@ -432,7 +452,7 @@ class InscricaoController extends Controller
                 $payment_id = $request->input('data')['id'];
 
                 Log::debug("\$request->input('data')['id']: ".$payment_id);
-                
+
                 $this->mercadoPagoService->VerificarStatusPagamento($payment_id);
             }
         }

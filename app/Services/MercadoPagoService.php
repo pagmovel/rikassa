@@ -7,13 +7,19 @@ use MercadoPago\Item;
 use App\Models\Inscricao;
 use App\Models\Pagamento;
 use Illuminate\Http\Request;
+use App\Mail\DadosCadastrais;
 use MercadoPago\MercadoPagoConfig;
 use MercadoPago\Resources\Payment;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use MercadoPago\Resources\Preference;
+use App\Mail\EmailPagamentoNaoAutorizado;
+use App\Http\Controllers\InscricaoController;
 use MercadoPago\Client\Payment\PaymentClient;
 use MercadoPago\Client\Preference\PreferenceClient;
+use App\Mail\EnviarEmailAoParticipanteConfirmandoPagamento;
 
 class MercadoPagoService {
     /**Public Key
@@ -94,26 +100,63 @@ class MercadoPagoService {
     }
 
 
-    public function VerificarStatusPagamento($payment_id) 
+    public function VerificarStatusPagamento($payment_id) // do mpwebrook
     { // https://www.youtube.com/watch?app=desktop&v=HCbk9vc4Wt0&ab_channel=LuanAlves
 
         $client = new PaymentClient();
 
         $payment = $client->get($payment_id);
 
-        Log::debug("payment: ".$payment);
-
         if (isset($payment->id)){            
             $inscricao = Inscricao::where("id", $payment->external_reference)->first();
 
-            Log::debug("\$inscricao: ".$inscricao);
-            Log::debug("\$payment->status: ".$payment->status);
-
+            // APROVADO
             if ( $inscricao !== Null && $payment->status == 'approved'){
-                Log::debug('Tem scrição e está '.$payment->status);
+                
+                // Atualiza a inscricao
+                $inscricao->update(['pagou' => True, 'cartao' => 'SIM' ]);
+                
+                // envia email com o cadastro para administrador Rikassa
+                $sent = Mail::to( env('MAIL_ADDRESS_RECEIVE'), env('MAIL_NAME_RECEIVE') )->send(new DadosCadastrais([
+                    'fromName' => env('MAIL_NAME_RECEIVE'), //$request->input('name'),
+                    'fromEmail' => env('MAIL_ADDRESS_RECEIVE'), //$request->input('email'),
+                    'subject' => "[Nova Inscrição Concurso Miss Rikassa D'Lux] ".$inscricao['nome'] ,
+                    'message' => $inscricao,
+                    'status' => 'PAGAMENTO APROVADO'
+                ]));
+
+                
+                // Enviar email ao participante com a aprovação do pagamento e confirmação da inscrição no concurso
+                $sent = Mail::to( $inscricao['email'], $inscricao['nome'] )->send(new EnviarEmailAoParticipanteConfirmandoPagamento([
+                    'fromName' => env('MAIL_NAME_RECEIVE'), //$request->input('name'),
+                    'fromEmail' => env('MAIL_ADDRESS_RECEIVE'), //$request->input('email'),
+                    'subject' => "[Concurso Miss Rikassa D'Lux] CONFIRMAÇÃO DE PAGAMENTO",
+                    'message' => $inscricao,
+                ]));
 
             } else if ( $inscricao !== Null && $payment->status == 'rejected'){
-                Log::debug('Tem scrição e está '.$payment->status);
+                // envia email para administrado informando que o pagamento foi rejeitado 
+
+                // envia email com o cadastro para administrador Rikassa
+                $sent = Mail::to( env('MAIL_ADDRESS_RECEIVE'), env('MAIL_NAME_RECEIVE') )->send(new DadosCadastrais([
+                    'fromName' => env('MAIL_NAME_RECEIVE'), //$request->input('name'),
+                    'fromEmail' => env('MAIL_ADDRESS_RECEIVE'), //$request->input('email'),
+                    'subject' => "[Nova Inscrição Concurso Miss Rikassa D'Lux] ".$inscricao['nome'] ,
+                    'message' => $inscricao,
+                    'status' => 'PAGAMENTO NÃO AUTORIZADO',
+                    'negado' => True,
+                ]));
+
+                // enviar email ao participante informando que o pagamento foi recusado
+                $url_confirmacao = URL::signedRoute('inscricao.pagamento', ['ni' => $inscricao->id]);
+                $sent = Mail::to($inscricao['email'], $inscricao['nome'])->send(new EmailPagamentoNaoAutorizado([
+                    'fromName' => env('MAIL_NAME_RECEIVE'), //$request->input('name'),
+                    'fromEmail' => env('MAIL_ADDRESS_RECEIVE'), //$request->input('email'),
+                    'subject' => "[Inscrição Concurso Miss Rikassa D'Lux] ".$inscricao['nome'],
+                    'message' => $inscricao,
+                    'url' => $url_confirmacao,
+                ]));
+
             }
         }
     }
@@ -131,8 +174,14 @@ class MercadoPagoService {
             }
         });
 
-        // Registra o pagamento no banco de dados
         return Pagamento::create($filteredArray);
+
+        if (isset($filteredArray['collection_id'])) {
+            // Registra o pagamento no banco de dados
+            return Pagamento::create($filteredArray);
+        } else {
+            return false;
+        }
 
         // return 
         // dd(Auth::user(), $res, $filteredArray);
