@@ -94,12 +94,12 @@ class MercadoPagoService {
     }
 
 
-    public function VerificarStatusPagamento($id) 
+    public function VerificarStatusPagamento($payment_id) 
     { // https://www.youtube.com/watch?app=desktop&v=HCbk9vc4Wt0&ab_channel=LuanAlves
 
         $client = new PaymentClient();
 
-        $payment = $client->get($id);
+        $payment = $client->get($payment_id);
 
         Log::debug("payment: ".$payment);
 

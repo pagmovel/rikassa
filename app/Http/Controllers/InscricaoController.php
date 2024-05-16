@@ -428,8 +428,12 @@ class InscricaoController extends Controller
 
         if ($request["type"] == "payment"){ 
             if (isset($request->input('data')['id'])){
-                Log::debug("\$request->input('data')['id']: ".$request->input('data')['id']);
-                $this->mercadoPagoService->VerificarStatusPagamento($request->input('data')['id']);
+
+                $payment_id = $request->input('data')['id'];
+
+                Log::debug("\$request->input('data')['id']: ".$payment_id);
+                
+                $this->mercadoPagoService->VerificarStatusPagamento($payment_id);
             }
         }
 
