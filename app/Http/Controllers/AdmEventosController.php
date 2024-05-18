@@ -27,7 +27,7 @@ class AdmEventosController extends Controller
                 return $btnEdit . ' ' . $btnDelete;
             })
             ->editColumn('url', function ($row) {
-                return '<a href="'.$row->url.'" target="_blank">'.$row->url.'</a>';
+                return '<a href="'.$row->url.'" class="url" target="_blank">'.$row->url.'</a>';
             })
             ->rawColumns(['action', 'url'])
             ->editColumn('start', function ($evento) {

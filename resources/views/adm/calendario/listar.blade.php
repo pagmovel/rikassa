@@ -9,7 +9,7 @@
     th, .dataTables_info {
         color: #563101;
     }
-    td, textarea {
+    td, textarea, .url {
         color: #94580A  !important;
     }
     div.dataTables_wrapper div.dataTables_processing  {
@@ -49,46 +49,46 @@
             <!-- Edit Event Modal -->
             <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                 <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editEventModalLabel">Editar Evento</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editEventModalLabel">Editar Evento</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form id="editEventForm" action="{{ route('adm.calendario.store') }}" method="post">
+                            @csrf
+
+                            <div class="modal-body">
+                                <input type="hidden" name="id" id="eventId">
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">Título do Evento</label>
+                                    <input type="text" class="form-control" id="title" name="title" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="content" class="form-label">Descrição</label>
+                                    <textarea class="form-control" id="content" name="content" required></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="start" class="form-label">Inicia em</label>
+                                    <input type="text" class="form-control" name="start" id="start"  required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="end" class="form-label">Termina em</label>
+                                    <input type="text" class="form-control" name="end" id="end"  required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="url" class="form-label">Link</label>
+                                    <input type="url" class="form-control" id="url" name="url" required>
+                                </div>
+                            </div>
+
+                            
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                            </div>
+                        </form>
                     </div>
-                    <form id="editEventForm" action="{{ route('adm.calendario.store') }}" method="post">
-                        @csrf
-
-                        <div class="modal-body">
-                            <input type="hidden" name="id" id="eventId">
-                            <div class="mb-3">
-                                <label for="title" class="form-label">Título do Evento</label>
-                                <input type="text" class="form-control" id="title" name="title" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="content" class="form-label">Descrição</label>
-                                <textarea class="form-control" id="content" name="content" required></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label for="start" class="form-label">Inicia em</label>
-                                <input type="text" class="form-control" name="start" id="start"  required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="end" class="form-label">Termina em</label>
-                                <input type="text" class="form-control" name="end" id="end"  required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="url" class="form-label">Link</label>
-                                <input type="url" class="form-control" id="url" name="url" required>
-                            </div>
-                        </div>
-
-                        
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
-                        </div>
-                    </form>
-                </div>
                 </div>
             </div>
   
@@ -100,7 +100,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.js"></script>
     <script src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script> --}}
     <script src="https://cdn.datatables.net/1.11.4/js/dataTables.bootstrap5.min.js"></script>
 
     <script type="text/javascript">
@@ -155,13 +155,43 @@
     </script>
 
 
-
     <script>
         $(document).ready(function() {
+            var fpStart, fpEnd;
+
+            // Função para configurar o Flatpickr
+            function setupFlatpickr(start, end) {
+                if (fpStart) fpStart.destroy();
+                if (fpEnd) fpEnd.destroy();
+
+                fpStart = flatpickr("#start", {
+                    enableTime: true,
+                    dateFormat: "Y-m-d H:i",
+                    altInput: true,
+                    altFormat: "d/m/Y H:i",
+                    locale: "pt",
+                    defaultDate: start,
+                    clickOpens: true,
+                    allowInput: true
+                });
+
+                fpEnd = flatpickr("#end", {
+                    enableTime: true,
+                    dateFormat: "Y-m-d H:i",
+                    altInput: true,
+                    altFormat: "d/m/Y H:i",
+                    locale: "pt",
+                    defaultDate: end,
+                    clickOpens: true,
+                    allowInput: true
+                });
+            }
+
+            // Evento de clique no botão de editar
             $(document).on('click', '.edit', function() {
                 var id = $(this).data('id');
                 var url = "{{ route('adm.calendario.show', ['id' => '_id_']) }}".replace('_id_', id);
-        
+
                 $.get(url, function(response) {
                     if (response.success) {
                         var data = response.data;
@@ -169,13 +199,12 @@
                         $('#title').val(data.title);
                         $('#content').val(data.content);
                         $('#url').val(data.url);
-        
+
                         setupFlatpickr(data.start, data.end);
-                        $('#editEventModal').modal({
-                            backdrop: 'static', // Desativa o fechamento ao clicar fora do modal
-                            keyboard: false    // Desativa o fechamento com teclas
-                        });
-                        $('#editEventModal').modal('show');
+                        $('#staticBackdrop').modal({
+                            backdrop: 'static',
+                            keyboard: false
+                        }).modal('show');
                     } else {
                         alert('Erro ao carregar dados do evento.');
                     }
@@ -183,35 +212,12 @@
                     alert('Erro ao acessar os dados do evento.');
                 });
             });
-        
-            function setupFlatpickr(start, end) {
-                if (typeof fpStart !== "undefined") fpStart.destroy();
-                if (typeof fpEnd !== "undefined") fpEnd.destroy();
-        
-                fpStart = flatpickr("#start", {
-                    enableTime: true,
-                    dateFormat: "Y-m-d H:i",
-                    altInput: true,
-                    altFormat: "d/m/Y H:i",
-                    locale: "pt",
-                    defaultDate: start
-                });
-        
-                fpEnd = flatpickr("#end", {
-                    enableTime: true,
-                    dateFormat: "Y-m-d H:i",
-                    altInput: true,
-                    altFormat: "d/m/Y H:i",
-                    locale: "pt",
-                    defaultDate: end
-                });
-            }
-        
-            $('#staticBackdropLabel').on('hide.bs.modal', function () {
-                if (typeof fpStart !== "undefined") fpStart.destroy();
-                if (typeof fpEnd !== "undefined") fpEnd.destroy();
+
+            $('#staticBackdrop').on('hidden.bs.modal', function () {
+                if (fpStart) fpStart.destroy();
+                if (fpEnd) fpEnd.destroy();
             });
-        
+
             $('#editEventForm').on('submit', function(e) {
                 var start = $('#start').val();
                 var end = $('#end').val();
@@ -223,6 +229,7 @@
             });
         });
     </script>
+
     
     
 
