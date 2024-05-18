@@ -22,7 +22,7 @@ class AdmEventosController extends Controller
         return Datatables::of($data)
             ->addIndexColumn()
             ->addColumn('action', function ($row) {
-                $btnEdit = '<a href="javascript:void(0)" data-id="'.$row->id.'" class="edit btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editEventModal"><i class="fa-regular fa-pen-to-square"></i></a>';
+                $btnEdit = '<a href="javascript:void(0)" data-id="'.$row->id.'" class="edit btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="fa-regular fa-pen-to-square"></i></a>';
                 $btnDelete = '<a href="javascript:void(0)" class="delete btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i></a>';
                 return $btnEdit . ' ' . $btnDelete;
             })

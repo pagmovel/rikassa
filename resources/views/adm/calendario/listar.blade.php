@@ -47,7 +47,7 @@
 
 
             <!-- Edit Event Modal -->
-            <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
+            <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                 <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -69,11 +69,11 @@
                             </div>
                             <div class="mb-3">
                                 <label for="start" class="form-label">Inicia em</label>
-                                <input type="text" class="form-control" name="start" id="start" readonly required>
+                                <input type="text" class="form-control" name="start" id="start"  required>
                             </div>
                             <div class="mb-3">
                                 <label for="end" class="form-label">Termina em</label>
-                                <input type="text" class="form-control" name="end" id="end" readonly required>
+                                <input type="text" class="form-control" name="end" id="end"  required>
                             </div>
                             <div class="mb-3">
                                 <label for="url" class="form-label">Link</label>
@@ -151,52 +151,30 @@
                     }
                 }
             });
+        });
+    </script>
 
-            // Variáveis para manter instâncias do flatpickr
-            var fpStart, fpEnd;
 
-            // Clique no botão editar para abrir o modal e configurar o flatpickr
+
+    <script>
+        $(document).ready(function() {
             $(document).on('click', '.edit', function() {
                 var id = $(this).data('id');
                 var url = "{{ route('adm.calendario.show', ['id' => '_id_']) }}".replace('_id_', id);
-
+        
                 $.get(url, function(response) {
                     if (response.success) {
                         var data = response.data;
-
-                        // Atualiza os campos do formulário
                         $('#eventId').val(data.id);
                         $('#title').val(data.title);
                         $('#content').val(data.content);
                         $('#url').val(data.url);
-
-                        // Atribui os valores antes de abrir o modal
-                        $('#start').attr('data-defaultDate', data.start.replace(' ', 'T'));
-                        $('#end').attr('data-defaultDate', data.end.replace(' ', 'T'));
-
-                        // Configura flatpickr para os campos start e end
-                        if (fpStart) fpStart.destroy(); // Destruir instância anterior se existir
-                        if (fpEnd) fpEnd.destroy();     // Destruir instância anterior se existir
-
-                        fpStart = flatpickr("#start", {
-                            enableTime: true,
-                            dateFormat: "Y-m-d H:i",
-                            altInput: true,
-                            altFormat: "d/m/Y H:i",
-                            locale: "pt",
-                            defaultDate: data.start.replace(' ', 'T')  // Assegure-se de converter corretamente a data
+        
+                        setupFlatpickr(data.start, data.end);
+                        $('#editEventModal').modal({
+                            backdrop: 'static', // Desativa o fechamento ao clicar fora do modal
+                            keyboard: false    // Desativa o fechamento com teclas
                         });
-
-                        fpEnd = flatpickr("#end", {
-                            enableTime: true,
-                            dateFormat: "Y-m-d H:i",
-                            altInput: true,
-                            altFormat: "d/m/Y H:i",
-                            locale: "pt",
-                            defaultDate: data.end.replace(' ', 'T')    // Assegure-se de converter corretamente a data
-                        });
-
-                        // Exibir o modal
                         $('#editEventModal').modal('show');
                     } else {
                         alert('Erro ao carregar dados do evento.');
@@ -205,18 +183,49 @@
                     alert('Erro ao acessar os dados do evento.');
                 });
             });
-        });
-
-        $('#editEventForm').on('submit', function(e) {
-            var start = $('#start').val();
-            var end = $('#end').val();
-            if (!start || !end) {
-                e.preventDefault(); // Impede o envio do formulário
-                alert('Os campos de data e hora são obrigatórios.');
-                return false; // Impede a submissão do formulário
+        
+            function setupFlatpickr(start, end) {
+                if (typeof fpStart !== "undefined") fpStart.destroy();
+                if (typeof fpEnd !== "undefined") fpEnd.destroy();
+        
+                fpStart = flatpickr("#start", {
+                    enableTime: true,
+                    dateFormat: "Y-m-d H:i",
+                    altInput: true,
+                    altFormat: "d/m/Y H:i",
+                    locale: "pt",
+                    defaultDate: start
+                });
+        
+                fpEnd = flatpickr("#end", {
+                    enableTime: true,
+                    dateFormat: "Y-m-d H:i",
+                    altInput: true,
+                    altFormat: "d/m/Y H:i",
+                    locale: "pt",
+                    defaultDate: end
+                });
             }
-            // Se necessário, adicione mais validações aqui
+        
+            $('#staticBackdropLabel').on('hide.bs.modal', function () {
+                if (typeof fpStart !== "undefined") fpStart.destroy();
+                if (typeof fpEnd !== "undefined") fpEnd.destroy();
+            });
+        
+            $('#editEventForm').on('submit', function(e) {
+                var start = $('#start').val();
+                var end = $('#end').val();
+                if (!start || !end) {
+                    e.preventDefault();
+                    alert('Os campos de data e hora são obrigatórios.');
+                    return false;
+                }
+            });
         });
+    </script>
+    
+    
+
 
 
         
