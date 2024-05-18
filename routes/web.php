@@ -17,7 +17,11 @@ Route::controller(EventosController::class)->group(function(){
 });
 
 // Administração
-Route::get('adm/calendario', [AdmEventosController::class, 'index'])->name('adm.calendario.index');
+Route::middleware(['cors'])->group(function () {
+    Route::get('adm/calendario', [AdmEventosController::class, 'index'])->name('adm.calendario.index');
+    Route::get('adm/calendario/{id}', [AdmEventosController::class, 'show'])->name('adm.calendario.show');
+    Route::post('adm/calendario', [AdmEventosController::class, 'store'])->name('adm.calendario.store');
+});
 
 Route::middleware(['cors'])->group(function () {
     Route::get('/inscricao',[InscricaoController::class, 'create'])->name('inscricao.create');

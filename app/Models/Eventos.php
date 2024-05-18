@@ -15,26 +15,13 @@ class Eventos extends Model
      *
      * @var array<int, string>
      */
+    protected $dates = ['start', 'end'];
+
     protected $fillable = [
         'title', 'content', 'color', 'start', 'end', 'url'
     ];
 
-    /**
-     * Retorna a data  formatada.
-     *
-     * @param  string  $value
-     * @return string
-     */
-    // Defina os accessors para os campos start e end
-    public function getStartAttribute($value)
-    {
-        return Carbon::parse($value)->format('d/m/Y H:i');
-    }
 
-    public function getEndAttribute($value)
-    {
-        return Carbon::parse($value)->format('d/m/Y H:i');
-    }
 
 
 }

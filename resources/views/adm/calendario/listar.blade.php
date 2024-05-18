@@ -3,15 +3,25 @@
 
 @section('content')
 <style>
-    th {
+    .table {
+        --bs-table-border-color: #eddbc4 !important;
+    }
+    th, .dataTables_info {
         color: #563101;
     }
-    td {
-        color: #94580A ;
+    td, textarea {
+        color: #94580A  !important;
     }
     div.dataTables_wrapper div.dataTables_processing  {
         background-color: #94580A !important;
         color: #FFFFFF !important;
+    }
+    .pagination {
+        --bs-pagination-active-bg: #94580a !important;
+        --bs-pagination-active-border-color: #704309 !important;
+        --bs-pagination-disabled-color: #d89b4c !important;
+        --bs-pagination-color: #94580A !important;
+        --bs-pagination-hover-color: #563101 !important;
     }
 </style>
     <div class="">
@@ -22,7 +32,7 @@
         <div class="row g-3 table-responsive">
             <table class="table table-bordered data-table table-hove">
                 <thead> <!--'id','title', 'content','start','end','url'-->
-                    <tr style="border-bottom: 2px solid #563101;">
+                    <tr style="border-bottom: 2px solid #b56600; background: #f9e2c5;">
                         <th scope="col">#</th>
                         <th scope="col">Título do Evento</th>
                         <th scope="col">Descricao</th>
@@ -36,292 +46,52 @@
             </table>
 
 
-            {{-- <table class="table table-hover">
-                <thead>
-                    <tr style="border-bottom: 2px solid #563101;">
-                        <th scope="col">#</th>
-                        <th scope="col">Título do Evento</th>
-                        <th scope="col">Descricao</th>
-                        <th scope="col">Inicia em</th>
-                        <th scope="col">Termina em</th>
-                        <th scope="col">Link</th>
-                        <th scope="col">Ação</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($eventos as $evento)
-                        <tr>
-                            <td>#</td>
-                            <td>{{ $evento->title }}</td>
-                            <td>{{ $evento->content }}</td>
-                            <td>{{ $evento->start }}</td>
-                            <td>{{ $evento->end }}</td>
-                            <td>{{ $evento->url }}</td>
-                            <td>
-                                Editar | Excluir
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table> --}}
+            <!-- Edit Event Modal -->
+            <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editEventModalLabel">Editar Evento</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="editEventForm" action="{{ route('adm.calendario.store') }}" method="post">
+                        @csrf
 
-
-            {{-- <form id="FormInscricao" class="mx-auto mb-3 col-md-6 form-floating" action="{{ route('inscricao.store.pix') }}" method="post" enctype="multipart/form-data">
-                @csrf
-                
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="mb-3 form-floating">
-                            <input type="text" name="nome" class="form-control @error('nome') is-invalid @enderror" value="{{ old('nome') }}" id="floatingInput1" placeholder="Nome" required>
-                            <label for="floatingInput1">Nome Completo</label>
-                            @error('nome')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="mb-3 form-floating">
-                            <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email') }}" id="floatingInput2" placeholder="email@domimnio.com" required>
-                            <label for="floatingInput2">Endereço de e-mail</label>
-                            @error('email')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="mb-3 form-floating">
-                            <input type="text" name="whatsapp" class="form-control @error('whatsapp') is-invalid @enderror" value="{{ old('whatsapp') }}" id="floatingWhatsapp" placeholder="+55 71 99999-9999" required>
-                            <label for="floatingWhatsapp">Nº Whatsapp</label>
-                            @error('whatsapp')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="mb-3 form-floating">
-                            <input type="date" name="nascimento" class="form-control @error('nascimento') is-invalid @enderror" value="{{ old('nascimento') }}" id="floatingDataNascimento" placeholder="+55 71 99999-9999" required>
-                            <label for="floatingDataNascimento">Data de Sascimento</label>
-                            @error('nascimento')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="mb-3 form-floating">
-                            <input type="text" name="altura" class="form-control @error('altura') is-invalid @enderror" value="{{ old('altura') }}" id="floatingAltura" placeholder="1,85" required>
-                            <label for="floatingAltura">Altura</label>
-                            @error('altura')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="mb-3 form-floating">
-                            <input type="text" name="cidade" class="form-control @error('cidade') is-invalid @enderror" value="{{ old('cidade') }}" id="floatingCidade" placeholder="Salvador" required>
-                            <label for="floatingCidade">Cidade</label>
-                            @error('cidade')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-md-12">
-                        <div class="mb-3 form-floating">
-                            <select name="estado" class="form-control @error('cidade') is-invalid @enderror" id="floatingEstado" placeholder="BA" required>
-                                <option ></option>
-                                <option value="Acre" {{ old('estado') == 'Acre' ? 'selected' : '' }}>Acre</option>
-                                <option value="Alagoas" {{ old('estado') == 'Alagoas' ? 'selected' : '' }}>Alagoas</option>
-                                <option value="Amapá" {{ old('estado') == 'Amapá' ? 'selected' : '' }}>Amapá</option>
-                                <option value="Amazonas" {{ old('estado') == 'Amazonas' ? 'selected' : '' }}>Amazonas</option>
-                                <option value="Bahia" {{ old('estado') == 'Bahia' ? 'selected' : '' }}>Bahia</option>
-                                <option value="Ceará" {{ old('estado') == 'Ceará' ? 'selected' : '' }}>Ceará</option>
-                                <option value="Distrito Federal" {{ old('estado') == 'Distrito Federal' ? 'selected' : '' }}>Distrito Federal</option>
-                                <option value="Espírito Santo" {{ old('estado') == 'Espírito Santo' ? 'selected' : '' }}>Espírito Santo</option>
-                                <option value="Goiás" {{ old('estado') == 'Goiás' ? 'selected' : '' }}>Goiás</option>
-                                <option value="Maranhão" {{ old('estado') == 'Maranhão' ? 'selected' : '' }}>Maranhão</option>
-                                <option value="Mato Grosso" {{ old('estado') == 'Mato Grosso' ? 'selected' : '' }}>Mato Grosso</option>
-                                <option value="Mato Grosso do Sul" {{ old('estado') == 'Mato Grosso do Sul' ? 'selected' : '' }}>Mato Grosso do Sul</option>
-                                <option value="Minas Gerais" {{ old('estado') == 'Minas Gerais' ? 'selected' : '' }}>Minas Gerais</option>
-                                <option value="Pará" {{ old('estado') == 'Pará' ? 'selected' : '' }}>Pará</option>
-                                <option value="Paraíba" {{ old('estado') == 'Paraíba' ? 'selected' : '' }}>Paraíba</option>
-                                <option value="Paraná" {{ old('estado') == 'Paraná' ? 'selected' : '' }}>Paraná</option>
-                                <option value="Pernambuco" {{ old('estado') == 'Pernambuco' ? 'selected' : '' }}>Pernambuco</option>
-                                <option value="Piauí" {{ old('estado') == 'Piauí' ? 'selected' : '' }}>Piauí</option>
-                                <option value="Rio de Janeiro" {{ old('estado') == 'Rio de Janeiro' ? 'selected' : '' }}>Rio de Janeiro</option>
-                                <option value="Rio Grande do Norte" {{ old('estado') == 'Rio Grande do Norte' ? 'selected' : '' }}>Rio Grande do Norte</option>
-                                <option value="Rio Grande do Sul" {{ old('estado') == 'Rio Grande do Sul' ? 'selected' : '' }}>Rio Grande do Sul</option>
-                                <option value="Rondônia" {{ old('estado') == 'Rondônia' ? 'selected' : '' }}>Rondônia</option>
-                                <option value="Roraima" {{ old('estado') == 'Roraima' ? 'selected' : '' }}>Roraima</option>
-                                <option value="Santa Catarina" {{ old('estado') == 'Santa Catarina' ? 'selected' : '' }}>Santa Catarina</option>
-                                <option value="São Paulo" {{ old('estado') == 'São Paulo' ? 'selected' : '' }}>São Paulo</option>
-                                <option value="Sergipe" {{ old('estado') == 'Sergipe' ? 'selected' : '' }}>Sergipe</option>
-                                <option value="Tocantins" {{ old('estado') == 'Tocantins' ? 'selected' : '' }}>Tocantins</option>
-                                <option value="Estrangeiro" {{ old('estado') == 'Estrangeiro' ? 'selected' : '' }}>Estrangeiro</option>
-                            </select>                            
-                            <label for="floatingEstado">Estado</label>
-                            @error('estado')
-                                <div class="erro-estado">{{ $message }}</div>
-                            @enderror
-                        </div>                        
-                    </div>
-                    
-                    <div class="col-md-12">
-                        <div class="mb-3 form-floating">
-                            <input type="text" name="bairro" class="form-control @error('bairro') is-invalid @enderror" value="{{ old('bairro') }}" id="floatingBairro" placeholder="Pituba" required>
-                            <label for="floatingBairro">Bairro onde mora</label>
-                            @error('bairro')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-md-12">
-                        <div class="mb-3 form-floating">
-                            <input type="file" name="foto" class="form-control @error('foto') is-invalid @enderror" value="{{ old('foto') }}" id="floatingFoto" placeholder="" required>
-                            <label for="floatingFoto">Foto recente</label>
-                            @error('foto')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-md-12">
-                        <div class="mb-3 form-floating">
-                            <input type="text" name="profissao" class="form-control @error('profissao') is-invalid @enderror" value="{{ old('profissao') }}" id="floatingProfissao" placeholder="Modelo" required>
-                            <label for="floatingProfissao">Profissão</label>
-                            @error('profissao')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="mb-3 form-floating">
-                            <input type="text" name="idiomas" class="form-control @error('idiomas') is-invalid @enderror" value="{{ old('idiomas') }}" id="floatingIdiomas" placeholder="Português" required>
-                            <label for="floatingIdiomas">Idiomas falados</label>
-                            @error('idiomas')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="mb-3 form-floating">
-                            <input type="text" name="nacionalidade" class="form-control @error('nacionalidade') is-invalid @enderror" value="{{ old('nacionalidade') }}" id="floatingNacionalidade" placeholder="Brasileira" required>
-                            <label for="floatingNacionalidade">Nacionalidade</label>
-                            @error('nacionalidade')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="mb-3 form-floating">
-                            <input type="text" name="interesses_pessoais" class="form-control @error('interesses_pessoais') is-invalid @enderror" value="{{ old('interesses_pessoais') }}" id="floatingInteresses" placeholder="Viajar" required>
-                            <label for="floatingInteresses">Interesses pessoais</label>
-                            @error('interesses_pessoais')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="mb-3 form-floating">
-                            <input type="text" name="experiencia_previa" class="form-control @error('experiencia_previa') is-invalid @enderror" value="{{ old('experiencia_previa') }}" id="floatingExperienciaPrevia" placeholder="Nenhuma" required>
-                            <label for="floatingExperienciaPrevia">Experiência prévia em concursos</label>
-                            @error('experiencia_previa')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">                    
-                        <div class="mb-3 form-floating">
-                            <input type="text" name="instagram" class="form-control @error('instagram') is-invalid @enderror" value="{{ old('instagram') }}" id="floatingInstagram" placeholder="@rikassa" required>
-                            <label for="floatingInstagram">Instagram</label>
-                            @error('instagram')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-md-4">                    
-                        <div class="mb-3 form-floating">
-                            <input type="text" name="facebook" class="form-control @error('facebook') is-invalid @enderror" value="{{ old('facebook') }}" id="floatingFacebook" placeholder="@rikassa" >
-                            <label for="floatingFacebook">Facebook</label>
-                            @error('facebook')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-md-4">                    
-                        <div class="mb-3 form-floating">
-                            <input type="text" name="x_twitter" class="form-control @error('x_twitter') is-invalid @enderror" value="{{ old('x_twitter') }}" id="floatingX" placeholder="@rikassa" >
-                            <label for="floatingX">X (twitter)</label>
-                            @error('x_twitter')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                    
-
-                    <div class="col-md-12">
-                        <div class="mb-3 form-floating">
-                            <div class="mb-3 form-check">
-                                <input type="checkbox" name="concordo" class="form-check-input @error('concordo') is-invalid @enderror" value="1" id="validationFormCheck1" required>
-                                <label class="form-check-label" for="validationFormCheck1">Entendo que minha inscrição para o Concurso Rikassa será efetivada somente após o pagamento da taxa de inscrição.</label>
-                                @error('concordo')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                        <div class="modal-body">
+                            <input type="hidden" name="id" id="eventId">
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Título do Evento</label>
+                                <input type="text" class="form-control" id="title" name="title" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="content" class="form-label">Descrição</label>
+                                <textarea class="form-control" id="content" name="content" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="start" class="form-label">Inicia em</label>
+                                <input type="text" class="form-control" name="start" id="start" readonly required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="end" class="form-label">Termina em</label>
+                                <input type="text" class="form-control" name="end" id="end" readonly required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="url" class="form-label">Link</label>
+                                <input type="url" class="form-control" id="url" name="url" required>
                             </div>
                         </div>
-                    </div>
 
-                    <!---  MODAL  -->
-                    <!-- Modal -->
-                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                
-                                
-                                
-                                
-                                <div class="modal-body texto">
-                                    <div class="mb-4 text-center">
-                                        <img src="{{ env('APP_LOGO') }}" alt="logo_rikassa" width="" class="mx-auto img-fluid">
-                                    </div>
+                        
 
-                                    <h1 class="text-center modal-title fs-5 texto" id="exampleModalLabel">SOBRE A TAXA DE INSCRIÇÂO</h1>
-                                    
-                                    <p class="mt-4">Para a taxa de inscrição do concurso, você pode escolher entre duas opções de pagamento.</p>
-
-                                    <ul>
-                                        <li><p class="text-justify">A primeira é através de transferência via PIX, utilizando os dados bancários que fornecemos. Certifique-se de incluir seu nome completo e o propósito do pagamento na descrição da transferência, para facilitar a confirmação da sua inscrição.<br>Banco: 336 - Banco C6 S.A.
-                                            <br>Agência: 0001
-                                            <br>Conta Corrente: 6151918-9
-                                            <br>Chave PIX: c0935cd5-d74c-4439-be4d-d474e5073881</p></li>
-                                            
-                                        <li><p class="text-justify">A segunda opção é o pagamento via cartão de crédito, que pode ser feito de forma segura através de nossa plataforma de pagamento online. Após realizar o pagamento, por favor envie o comprovante para nosso e-mail de contato. Isso nos permitirá confirmar sua inscrição e garantir sua participação no concurso. Caso tenha dúvidas ou precise de assistência durante o processo de pagamento, não hesite em entrar em contato conosco.</p></li>
-                                    </ul>
-                                    
-
-                                    
-                                    
-                                
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                                    <button type="button" class="btn btn-primary" id="btn_enviar" onclick="submitForm()">Enviar Inscrição</button>
-                                </div>
-                            </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
                         </div>
-                    </div>
-                    <!---  FIM MODAL  -->
-
-                    <div class="col-md-12">
-                        <div class="gap-2 d-grid">
-                            <button type="button" class="mb-3 btn btn-primary md-12" data-bs-toggle="modal" data-bs-target="#exampleModal">Clique Aqui Continuar a Inscrição</button>
-                        </div>
-                    </div>
-                    
+                    </form>
                 </div>
-            </form>
-             --}}
+                </div>
+            </div>
+  
             
         </div>
     </div>
@@ -334,8 +104,10 @@
     <script src="https://cdn.datatables.net/1.11.4/js/dataTables.bootstrap5.min.js"></script>
 
     <script type="text/javascript">
-        $(function() {
-            gb_DataTable = $(".data-table").DataTable({
+        
+        $(document).ready(function() {
+            // Inicialização do DataTable com configuração de idioma para português
+            var gb_DataTable = $(".data-table").DataTable({
                 autoWidth: true,
                 order: [0, "ASC"],
                 processing: true,
@@ -353,24 +125,17 @@
                     { data: 'url', name: 'url' },
                     { data: 'action', name: 'action', orderable: false, searchable: false },
                 ],
-                lengthMenu: [10,25,50,100]
-            });
-        });
-
-        (function ($, DataTable) {
-
-            // Datatable global configuration
-            $.extend(true, DataTable.defaults, {
+                lengthMenu: [10, 25, 50, 100],
                 language: {
-                    "sProcessing": "Procesando...",
+                    "sProcessing": "Processando...",
                     "sLengthMenu": "Mostrar _MENU_ registros",
                     "sZeroRecords": "Nenhum resultado encontrado",
-                    "sEmptyTable": "Sem dados",
+                    "sEmptyTable": "Sem dados disponíveis",
                     "sInfo": "Mostrando registros de _START_ até _END_ de um total de _TOTAL_ registros",
-                    "sInfoEmpty": "Mostrando 0 resgistros de um total de 0 registros",
+                    "sInfoEmpty": "Mostrando 0 registros de um total de 0",
                     "sInfoFiltered": "(filtrado de um total de _MAX_ registros)",
                     "sInfoPostFix": "",
-                    "sSearch": "Localizar:",
+                    "sSearch": "Buscar:",
                     "sUrl": "",
                     "sInfoThousands": ",",
                     "sLoadingRecords": "Carregando...",
@@ -381,13 +146,83 @@
                         "sPrevious": "Anterior"
                     },
                     "oAria": {
-                        "sSortAscending": ": Ordenar a coluna de maneira ascendente",
-                        "sSortDescending": ": Ordenar a coluna de maneira descendente"
+                        "sSortAscending": ": Ordenar colunas de forma ascendente",
+                        "sSortDescending": ": Ordenar colunas de forma descendente"
                     }
                 }
             });
 
-            })(jQuery, jQuery.fn.dataTable);
+            // Variáveis para manter instâncias do flatpickr
+            var fpStart, fpEnd;
+
+            // Clique no botão editar para abrir o modal e configurar o flatpickr
+            $(document).on('click', '.edit', function() {
+                var id = $(this).data('id');
+                var url = "{{ route('adm.calendario.show', ['id' => '_id_']) }}".replace('_id_', id);
+
+                $.get(url, function(response) {
+                    if (response.success) {
+                        var data = response.data;
+
+                        // Atualiza os campos do formulário
+                        $('#eventId').val(data.id);
+                        $('#title').val(data.title);
+                        $('#content').val(data.content);
+                        $('#url').val(data.url);
+
+                        // Atribui os valores antes de abrir o modal
+                        $('#start').attr('data-defaultDate', data.start.replace(' ', 'T'));
+                        $('#end').attr('data-defaultDate', data.end.replace(' ', 'T'));
+
+                        // Configura flatpickr para os campos start e end
+                        if (fpStart) fpStart.destroy(); // Destruir instância anterior se existir
+                        if (fpEnd) fpEnd.destroy();     // Destruir instância anterior se existir
+
+                        fpStart = flatpickr("#start", {
+                            enableTime: true,
+                            dateFormat: "Y-m-d H:i",
+                            altInput: true,
+                            altFormat: "d/m/Y H:i",
+                            locale: "pt",
+                            defaultDate: data.start.replace(' ', 'T')  // Assegure-se de converter corretamente a data
+                        });
+
+                        fpEnd = flatpickr("#end", {
+                            enableTime: true,
+                            dateFormat: "Y-m-d H:i",
+                            altInput: true,
+                            altFormat: "d/m/Y H:i",
+                            locale: "pt",
+                            defaultDate: data.end.replace(' ', 'T')    // Assegure-se de converter corretamente a data
+                        });
+
+                        // Exibir o modal
+                        $('#editEventModal').modal('show');
+                    } else {
+                        alert('Erro ao carregar dados do evento.');
+                    }
+                }).fail(function() {
+                    alert('Erro ao acessar os dados do evento.');
+                });
+            });
+        });
+
+        $('#editEventForm').on('submit', function(e) {
+            var start = $('#start').val();
+            var end = $('#end').val();
+            if (!start || !end) {
+                e.preventDefault(); // Impede o envio do formulário
+                alert('Os campos de data e hora são obrigatórios.');
+                return false; // Impede a submissão do formulário
+            }
+            // Se necessário, adicione mais validações aqui
+        });
+
+
+        
     </script>
+    
+
+    
     @endpush
 @endsection
