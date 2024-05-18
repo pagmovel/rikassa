@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Eventos extends Model
 {
@@ -15,10 +16,25 @@ class Eventos extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'title', 'content', 'color', 'start', 'end'
+        'title', 'content', 'color', 'start', 'end', 'url'
     ];
 
+    /**
+     * Retorna a data  formatada.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    // Defina os accessors para os campos start e end
+    public function getStartAttribute($value)
+    {
+        return Carbon::parse($value)->format('d/m/Y H:i');
+    }
 
+    public function getEndAttribute($value)
+    {
+        return Carbon::parse($value)->format('d/m/Y H:i');
+    }
 
 
 }
