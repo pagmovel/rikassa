@@ -14,6 +14,8 @@ class AdmEventosController extends Controller
     /**
      * Display a listing of the resource.
      */
+    private $signature = '94b37a5ace7c748c677fc5a3e80d7b820520532edfbf8662c91a1c10d8902069';
+    private $ni = 9102837465;
     public function index(Request $request)
 { // http://rikassa.test/adm/calendario?ni=9102837465&signature=94b37a5ace7c748c677fc5a3e80d7b820520532edfbf8662c91a1c10d8902069
     if ($request->ajax()) {
@@ -70,13 +72,39 @@ class AdmEventosController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request->all());
         $request->validate([
-            'start' => 'required|date_format:Y-m-d\TH:i',
-            'end' => 'required|date_format:Y-m-d\TH:i',
-            // outros campos conforme necessário
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'start' => 'required|date_format:Y-m-d H:i',
+            'end' => 'required|date_format:Y-m-d H:i',
+            'url' => 'url',
         ]);
 
+        // Verifica se o ID do evento está vazio para criação de um novo registro
+        if (empty($request->input('id'))) {
+            // CREATE
+            $evento = new Eventos([
+                'title' => $request->input('title'),
+                'content' => $request->input('content'),
+                'start' => $request->input('start'),
+                'end' => $request->input('end'),
+                'url' => $request->input('url'),
+            ]);
+            $evento->save();
+            return redirect()->route('adm.calendario.index', [
+                'ni' => $this->ni,
+                'signature' => $this->signature
+            ])->with('success', 'Evento atualizado com sucesso!');
+        } else {
+            // UPDATE
+            $evento = Eventos::findOrFail($request->input('id'));
+            $evento->update($request->all());
+            return redirect()->route('adm.calendario.index', [
+                'ni' => $this->ni,
+                'signature' => $this->signature
+            ])->with('success', 'Evento atualizado com sucesso!');
+            
+        }
         
     }
 
