@@ -69,11 +69,11 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="start" class="form-label">Inicia em</label>
-                                    <input type="text" class="form-control" name="start" id="start"  required>
+                                    <input type="datetime" class="form-control" name="start" id="start" readonly required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="end" class="form-label">Termina em</label>
-                                    <input type="text" class="form-control" name="end" id="end"  required>
+                                    <input type="datetime" class="form-control" name="end" id="end"  readonly required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="url" class="form-label">Link</label>
@@ -172,7 +172,7 @@
                     locale: "pt",
                     defaultDate: start,
                     clickOpens: true,
-                    allowInput: true
+                    allowInput: false
                 });
 
                 fpEnd = flatpickr("#end", {
@@ -183,7 +183,7 @@
                     locale: "pt",
                     defaultDate: end,
                     clickOpens: true,
-                    allowInput: true
+                    allowInput: false
                 });
             }
 
