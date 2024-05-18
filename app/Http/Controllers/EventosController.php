@@ -85,27 +85,27 @@ class EventosController extends Controller
     }
 
 
-    public function listar(Request $request){
-        // $url_confirmacao = URL::signedRoute('adm.calendario.listar', ['ni' => 9102837465]);
-        // echo $url_confirmacao;
-        // http://rikassa.test/adm/calendario?ni=9102837465&signature=94b37a5ace7c748c677fc5a3e80d7b820520532edfbf8662c91a1c10d8902069
+    // public function listar(Request $request){
+    //     // $url_confirmacao = URL::signedRoute('adm.calendario.listar', ['ni' => 9102837465]);
+    //     // echo $url_confirmacao;
+    //     // http://rikassa.test/adm/calendario?ni=9102837465&signature=94b37a5ace7c748c677fc5a3e80d7b820520532edfbf8662c91a1c10d8902069
         
-        // Se não tiver autenticado
-        if (!Auth::check()){
-            // Verifica se veio pela url assinada validando
-            if (! $request->hasValidSignature()) {
-                abort(401);
-            }
-            // Se veio pela url assinada, logue na conta admin
-            // Faz o login do usuário confirmado
-            $user = User::where('id',  1)->first();
-            Auth::login($user);
+    //     // Se não tiver autenticado
+    //     if (!Auth::check()){
+    //         // Verifica se veio pela url assinada validando
+    //         if (! $request->hasValidSignature()) {
+    //             abort(401);
+    //         }
+    //         // Se veio pela url assinada, logue na conta admin
+    //         // Faz o login do usuário confirmado
+    //         $user = User::where('id',  1)->first();
+    //         Auth::login($user);
 
-            $eventos = Eventos::orderby('start')->get();
-            // dd('aqui')
-            return view('adm.calendario.listar', compact('user','eventos'));
+    //         $eventos = Eventos::orderby('start')->get();
+    //         // dd('aqui')
+    //         return view('adm.calendario.listar', compact('user','eventos'));
 
-        } 
+    //     } 
 
         
 

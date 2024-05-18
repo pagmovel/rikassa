@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EventosController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\InscricaoController;
+use App\Http\Controllers\AdmEventosController;
 
 
 Route::controller(EventosController::class)->group(function(){
@@ -13,9 +14,10 @@ Route::controller(EventosController::class)->group(function(){
     Route::get('calendario/list', 'list');
     Route::post('fullcalenderAjax', 'ajax');
 
-    // Administração
-    Route::get('adm/calendario',  'listar')->name('adm.calendario.listar');
 });
+
+// Administração
+Route::get('adm/calendario', [AdmEventosController::class, 'index'])->name('adm.calendario.index');
 
 Route::middleware(['cors'])->group(function () {
     Route::get('/inscricao',[InscricaoController::class, 'create'])->name('inscricao.create');

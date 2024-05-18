@@ -1,5 +1,6 @@
 @extends('layouts.rikassa')
 @section('title', 'Formulário de Inscrição')
+
 @section('content')
 <style>
     th {
@@ -8,13 +9,33 @@
     td {
         color: #94580A ;
     }
+    div.dataTables_wrapper div.dataTables_processing  {
+        background-color: #94580A !important;
+        color: #FFFFFF !important;
+    }
 </style>
     <div class="">
         <div class="row">
-            <h2 class="mb-5 text-center titulo">Gerenciaqdor de eventos</h2>
+            <h2 class="mb-5 text-center titulo">Gerenciador de eventos</h2>
         </div>
 
         <div class="row g-3 table-responsive">
+            <table class="table table-bordered data-table table-hove">
+                <thead> <!--'id','title', 'content','start','end','url'-->
+                    <tr style="border-bottom: 2px solid #563101;">
+                        <th scope="col">#</th>
+                        <th scope="col">Título do Evento</th>
+                        <th scope="col">Descricao</th>
+                        <th scope="col">Inicia em</th>
+                        <th scope="col">Termina em</th>
+                        <th scope="col">Link</th>
+                        <th width="105px">Acao</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+
             {{-- <table class="table table-hover">
                 <thead>
                     <tr style="border-bottom: 2px solid #563101;">
@@ -305,7 +326,68 @@
         </div>
     </div>
     
-    {{-- @push('scripts')
-        
-    @endpush --}}
+    @push('scripts')
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.js"></script>
+    <script src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="https://cdn.datatables.net/1.11.4/js/dataTables.bootstrap5.min.js"></script>
+
+    <script type="text/javascript">
+        $(function() {
+            gb_DataTable = $(".data-table").DataTable({
+                autoWidth: true,
+                order: [0, "ASC"],
+                processing: true,
+                serverSide: true,
+                searchDelay: 2000,
+                paging: true,
+                ajax: "{{ route('adm.calendario.index') }}",
+                iDisplayLength: "10",
+                columns: [
+                    { data: 'id', name: 'id' },
+                    { data: 'title', name: 'title' },
+                    { data: 'content', name: 'content' },
+                    { data: 'start', name: 'start' },
+                    { data: 'end', name: 'end' },
+                    { data: 'url', name: 'url' },
+                    { data: 'action', name: 'action', orderable: false, searchable: false },
+                ],
+                lengthMenu: [10,25,50,100]
+            });
+        });
+
+        (function ($, DataTable) {
+
+            // Datatable global configuration
+            $.extend(true, DataTable.defaults, {
+                language: {
+                    "sProcessing": "Procesando...",
+                    "sLengthMenu": "Mostrar _MENU_ registros",
+                    "sZeroRecords": "Nenhum resultado encontrado",
+                    "sEmptyTable": "Sem dados",
+                    "sInfo": "Mostrando registros de _START_ até _END_ de um total de _TOTAL_ registros",
+                    "sInfoEmpty": "Mostrando 0 resgistros de um total de 0 registros",
+                    "sInfoFiltered": "(filtrado de um total de _MAX_ registros)",
+                    "sInfoPostFix": "",
+                    "sSearch": "Localizar:",
+                    "sUrl": "",
+                    "sInfoThousands": ",",
+                    "sLoadingRecords": "Carregando...",
+                    "oPaginate": {
+                        "sFirst": "Primeiro",
+                        "sLast": "Último",
+                        "sNext": "Próximo",
+                        "sPrevious": "Anterior"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": Ordenar a coluna de maneira ascendente",
+                        "sSortDescending": ": Ordenar a coluna de maneira descendente"
+                    }
+                }
+            });
+
+            })(jQuery, jQuery.fn.dataTable);
+    </script>
+    @endpush
 @endsection
