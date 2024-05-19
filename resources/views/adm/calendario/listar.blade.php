@@ -190,7 +190,14 @@
                 serverSide: true,
                 searchDelay: 2000,
                 paging: true,
-                ajax: "{{ route('adm.calendario.index') }}",
+                ajax: {
+                    url: "{{ route('adm.calendario.index') }}",
+                    type: "GET",
+                    data: function(d) {
+                        d.ni = "{{ request()->ni }}";
+                        d.signature = "{{ request()->signature }}";
+                    }
+                },
                 iDisplayLength: "10",
                 columns: [
                     { data: 'id', name: 'id' },
