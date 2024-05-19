@@ -57,7 +57,7 @@ class AdmEventosController extends Controller
             Auth::login($user);
         }
 
-        return view('adm.calendario.listar', compact('user'));
+        return view('adm.calendario.listar');
     }
 
 
