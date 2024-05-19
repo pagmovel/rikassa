@@ -17,56 +17,46 @@ class AdmEventosController extends Controller
     private $signature = '94b37a5ace7c748c677fc5a3e80d7b820520532edfbf8662c91a1c10d8902069';
     private $ni = 9102837465;
     public function index(Request $request)
-{ // http://rikassa.test/adm/calendario?ni=9102837465&signature=94b37a5ace7c748c677fc5a3e80d7b820520532edfbf8662c91a1c10d8902069
-    if ($request->ajax()) {
-        $data = Eventos::all();
+    { 
+        if ($request->ajax()) {
+            $data = Eventos::all();
 
-        return Datatables::of($data)
-            ->addIndexColumn()
-            ->addColumn('action', function ($row) {
-                $btnEdit = '<a href="javascript:void(0)" data-id="'.$row->id.'" class="edit btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="fa-regular fa-pen-to-square"></i></a>';
-                $btnDelete = '<a href="javascript:void(0)" class="delete btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i></a>';
-                return $btnEdit . ' ' . $btnDelete;
-            })
-            ->editColumn('url', function ($row) {
-                return '<a href="'.$row->url.'" class="url" target="_blank">'.$row->url.'</a>';
-            })
-            ->rawColumns(['action', 'url'])
-            ->editColumn('start', function ($evento) {
-                return Carbon::parse($evento->start)->format('d/m/Y H:i \h\s.');
-            })
-            ->editColumn('end', function ($evento) {
-                return Carbon::parse($evento->end)->format('d/m/Y H:i \h\s.');
-            })
-            ->make(true);
-    }
-
-    // Tratamento de não autenticado com URL assinada
-    if (!Auth::check()) {
-        if (!$request->hasValidSignature()) {
-            abort(403, 'Acesso não autorizado.');  // Alterado para 403 Forbidden
+            return Datatables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    $btnEdit = '<a href="javascript:void(0)" data-id="'.$row->id.'" class="edit btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="fa-regular fa-pen-to-square"></i></a>';
+                    $btnDelete = '<a href="javascript:void(0)" data-id="'.$row->id.'" class="delete btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal"><i class="fa-solid fa-trash"></i></a>';
+                    
+                    return $btnEdit . ' ' . $btnDelete;
+                })
+                ->editColumn('url', function ($row) {
+                    return '<a href="'.$row->url.'" class="url" target="_blank">'.$row->url.'</a>';
+                })
+                ->rawColumns(['action', 'url'])
+                ->editColumn('start', function ($evento) {
+                    return Carbon::parse($evento->start)->format('d/m/Y H:i \h\s.');
+                })
+                ->editColumn('end', function ($evento) {
+                    return Carbon::parse($evento->end)->format('d/m/Y H:i \h\s.');
+                })
+                ->make(true);
         }
-        $user = User::where('id', 1)->firstOrFail();  // Usando firstOrFail para lidar com usuário não encontrado
-        Auth::login($user);
+
+        // Tratamento de não autenticado com URL assinada
+        if (!Auth::check()) {
+            if (!$request->hasValidSignature()) {
+                abort(403, 'Acesso não autorizado.');  // Alterado para 403 Forbidden
+            }
+            $user = User::where('id', 1)->firstOrFail();  // Usando firstOrFail para lidar com usuário não encontrado
+            Auth::login($user);
+        }
+
+        return view('adm.calendario.listar', compact('user'));
+        
     }
 
-    // $eventos = Eventos::orderBy('start')->get();
-    return view('adm.calendario.listar', compact('user'));
-    // return view('adm.calendario.listar', compact('eventos'));
-    
-}
-
 
     
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -77,10 +67,12 @@ class AdmEventosController extends Controller
             'content' => 'required|string',
             'start' => 'required|date_format:Y-m-d H:i',
             'end' => 'required|date_format:Y-m-d H:i',
-            'url' => 'url',
+            'url' => 'nullable|url',
         ]);
+        // dd($request->all());
 
         // Verifica se o ID do evento está vazio para criação de um novo registro
+        
         if (empty($request->input('id'))) {
             // CREATE
             $evento = new Eventos([
@@ -135,29 +127,23 @@ class AdmEventosController extends Controller
 
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id)
-    {
-        $evento = Eventos::findOrFail($id);
-        $evento->update($request->all());
-        return response()->json(['success' => 'Evento atualizado com sucesso']);
-        
-    }
-
-    /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request)
     {
-        //
+        try {
+            $evento = Eventos::findOrFail($request->id);
+            $evento->delete();
+    
+            return redirect()->route('adm.calendario.index', [
+                'ni' => $this->ni,
+                'signature' => $this->signature
+            ])->with('success', 'Evento deletado com sucesso!');
+        } catch (\Exception $e) {
+            return redirect()->route('adm.calendario.index', [
+                'ni' => $this->ni,
+                'signature' => $this->signature
+            ])->with('error', 'Erro ao deletar evento.');
+        }
     }
 }

@@ -6,6 +6,11 @@
     .table {
         --bs-table-border-color: #eddbc4 !important;
     }
+
+    .table .text-center {
+        text-align: center;
+        vertical-align: middle;
+    }
     th, .dataTables_info {
         color: #563101;
     }
@@ -23,11 +28,47 @@
         --bs-pagination-color: #94580A !important;
         --bs-pagination-hover-color: #563101 !important;
     }
+    .dataTables_filter {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+    .dataTables_filter label {
+        margin-right: 10px;
+    }
+    .dataTables_filter .btn-novo-registro {
+        margin-left: 10px;
+    }
 </style>
     <div class="">
         <div class="row">
             <h2 class="mb-5 text-center titulo">Gerenciador de eventos</h2>
         </div>
+
+        <!-- Exibir mensagens de sucesso -->
+        @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        <!-- Exibir mensagens de erro -->
+        @if (session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        <!-- Exibir mensagens de erro de validação -->
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
         <div class="row g-3 table-responsive">
             <table class="table table-bordered data-table table-hove">
@@ -39,7 +80,7 @@
                         <th scope="col">Inicia em</th>
                         <th scope="col">Termina em</th>
                         <th scope="col">Link</th>
-                        <th width="105px">Acao</th>
+                        <th width="105px">Ação</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -77,7 +118,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="url" class="form-label">Link</label>
-                                    <input type="url" class="form-control" id="url" name="url" required>
+                                    <input type="url" class="form-control" id="url" name="url" placeholder="http://">
                                 </div>
                             </div>
 
@@ -86,6 +127,38 @@
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                                 <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- DELETE modal -->
+            <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="deleteModalLabel">ATENÇÃO!!!</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form id="deleteEventForm" action="{{ route('adm.calendario.destroy') }}" method="post">
+                            <div class="modal-body">
+                                @csrf
+                                @method('DELETE')
+                                <input type="hidden" name="id" id="recipient-id">
+                                <div class="mb-3">
+                                    <label for="recipient-name" class="col-form-label">Titulo do Evento:</label>
+                                    <input type="text" class="form-control" id="recipient-titulo" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="message-text" class="col-form-label">Descrição do Evento:</label>
+                                    <textarea class="form-control" id="message-descricao" readonly></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">EXCLUIR</button>
                             </div>
                         </form>
                     </div>
@@ -102,6 +175,9 @@
     <script src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
     {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script> --}}
     <script src="https://cdn.datatables.net/1.11.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.0.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.print.min.js"></script>
 
     <script type="text/javascript">
         
@@ -123,17 +199,17 @@
                     { data: 'start', name: 'start' },
                     { data: 'end', name: 'end' },
                     { data: 'url', name: 'url' },
-                    { data: 'action', name: 'action', orderable: false, searchable: false },
+                    { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center' },
                 ],
                 lengthMenu: [10, 25, 50, 100],
                 language: {
                     "sProcessing": "Processando...",
-                    "sLengthMenu": "Mostrar _MENU_ registros",
-                    "sZeroRecords": "Nenhum resultado encontrado",
-                    "sEmptyTable": "Sem dados disponíveis",
-                    "sInfo": "Mostrando registros de _START_ até _END_ de um total de _TOTAL_ registros",
-                    "sInfoEmpty": "Mostrando 0 registros de um total de 0",
-                    "sInfoFiltered": "(filtrado de um total de _MAX_ registros)",
+                    "sLengthMenu": "Mostrar _MENU_ registros.",
+                    "sZeroRecords": "Nenhum resultado encontrado.",
+                    "sEmptyTable": "Sem dados disponíveis.",
+                    "sInfo": "Mostrando registros de _START_ até _END_ de um total de _TOTAL_ registros.",
+                    "sInfoEmpty": "Mostrando 0 registros de um total de 0.",
+                    "sInfoFiltered": "(filtrado de um total de _MAX_ registros.)",
                     "sInfoPostFix": "",
                     "sSearch": "Buscar:",
                     "sUrl": "",
@@ -149,6 +225,9 @@
                         "sSortAscending": ": Ordenar colunas de forma ascendente",
                         "sSortDescending": ": Ordenar colunas de forma descendente"
                     }
+                },
+                initComplete: function () {
+                    $(".dataTables_filter").append('<button type="button" class="btn btn-primary btn-novo-registro" id="btn-novo">Cadastrar Evento</button>');
                 }
             });
         });
@@ -187,10 +266,21 @@
                 });
             }
 
+            // Função para abrir o modal e resetar os inputs
+            $(document).on('click', '#btn-novo', function() {
+                $('#editEventForm').trigger("reset"); // Limpa o formulário
+                $('#eventId').val(''); // Limpa o ID do evento
+                $('#editEventModalLabel').text("Novo Evento"); // Altera o título do modal
+                setupFlatpickr(null, null); // Inicializa o Flatpickr sem data
+                $('#staticBackdrop').modal('show'); // Abre o modal
+            });
+
             // Evento de clique no botão de editar
             $(document).on('click', '.edit', function() {
                 var id = $(this).data('id');
                 var url = "{{ route('adm.calendario.show', ['id' => '_id_']) }}".replace('_id_', id);
+                editEventModalLabel
+                $('#editEventModalLabel').text("Alterar Evento"); // Altera o título do modal
 
                 $.get(url, function(response) {
                     if (response.success) {
@@ -201,6 +291,7 @@
                         $('#url').val(data.url);
 
                         setupFlatpickr(data.start, data.end);
+                        // $('#editEventModalLabel').text("Editar Evento");
                         $('#staticBackdrop').modal({
                             backdrop: 'static',
                             keyboard: false
@@ -230,12 +321,36 @@
         });
     </script>
 
-    
-    
+    <script type="text/javascript">
+        $(document).ready(function() {
+            // Função para configurar o modal de deletar
+            $('#deleteModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget); // Botão que acionou o modal
+                var id = button.data('id'); // Extrai o ID do registro do atributo data-id
 
+                // Faz uma requisição AJAX para obter os dados do registro
+                $.ajax({
+                    url: "{{ route('adm.calendario.show', ['id' => '_id_']) }}".replace('_id_', id),
+                    method: 'GET',
+                    success: function(response) {
+                        if (response.success) {
+                            // Preenche os campos do modal com os dados do registro
+                            $('#recipient-id').val(response.data.id);
+                            $('#recipient-titulo').val(response.data.title);
+                            $('#message-descricao').val(response.data.content);
+                            // Adicione mais campos conforme necessário
+                        } else {
+                            alert('Erro ao carregar dados do evento.');
+                        }
+                    },
+                    error: function() {
+                        alert('Erro ao acessar os dados do evento.');
+                    }
+                });
+            });
 
-
-        
+            // Inicialização do DataTable e outras funções...
+        });
     </script>
     
 
