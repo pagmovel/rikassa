@@ -11,11 +11,19 @@ use Yajra\DataTables\Facades\Datatables;
 
 class AdmEventosController extends Controller
 {
+    private $signature;
+    private $ni;
+
+    public function __construct()
+    {
+        $this->signature = env('SIGNATURE');
+        $this->ni = env('NI');
+    }
+
+    
     /**
      * Display a listing of the resource.
      */
-    private $signature = '94b37a5ace7c748c677fc5a3e80d7b820520532edfbf8662c91a1c10d8902069';
-    private $ni = 9102837465;
     public function index(Request $request)
     { 
         if ($request->ajax()) {
