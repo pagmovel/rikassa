@@ -50,7 +50,7 @@ class AdmEventosController extends Controller
         // Tratamento de não autenticado com URL assinada
         if (!Auth::check()) {
             if (!$request->hasValidSignature()) {
-                dd($request->hasValidSignature());
+                // dd($request->hasValidSignature());
                 abort(403, 'Acesso não autorizado.');  // Alterado para 403 Forbidden
             }
             $user = User::where('id', 1)->firstOrFail();  // Usando firstOrFail para lidar com usuário não encontrado
