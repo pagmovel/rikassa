@@ -15,16 +15,10 @@ class AdmEventosController extends Controller
     private $signature;
     private $ni;
 
-    // public function __construct()
-    // {
-    //     $this->signature = env('SIGNATURE');
-    //     $this->ni = env('NI');
-    // }
-
-    public function uri()
+    public function __construct()
     {
-        // Gera url para confirmação
-        echo URL::signedRoute('adm.calendario.uri', ['ni' => $this->ni]);
+        $this->signature = env('SIGNATURE');
+        $this->ni = env('NI');
     }
     
     /**

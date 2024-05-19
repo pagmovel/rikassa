@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EventosController;
 use App\Http\Controllers\ProfileController;
@@ -16,6 +17,10 @@ Route::controller(EventosController::class)->group(function(){
 
 });
 
+Route::get('adm/calendario/uri', function() {
+    echo URL::signedRoute('adm.calendario.index', ['ni' => env('NI')]);
+})->name('adm.calendario.uri');
+
 // Administração
 Route::middleware(['cors'])->group(function () {
     Route::get('adm/calendario', [AdmEventosController::class, 'index'])->name('adm.calendario.index');
@@ -23,7 +28,8 @@ Route::middleware(['cors'])->group(function () {
     Route::post('adm/calendario', [AdmEventosController::class, 'store'])->name('adm.calendario.store');
     Route::delete('adm/calendario', [AdmEventosController::class, 'destroy'])->name('adm.calendario.destroy');
 
-    Route::get('adm/calendario/uri', [AdmEventosController::class, 'uri'])->name('adm.calendario.uri');
+    
+
 });
 
 Route::middleware(['cors'])->group(function () {
