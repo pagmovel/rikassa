@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Eventos;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\Datatables;
 
@@ -20,6 +21,11 @@ class AdmEventosController extends Controller
         $this->ni = env('NI');
     }
 
+    public function uri()
+    {
+        // Gera url para confirmação
+        echo URL::signedRoute('adm.calendario.uri', ['ni' => $this->ni]);
+    }
     
     /**
      * Display a listing of the resource.
