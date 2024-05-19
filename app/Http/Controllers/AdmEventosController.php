@@ -20,12 +20,9 @@ class AdmEventosController extends Controller
         $this->signature = env('SIGNATURE');
         $this->ni = env('NI');
     }
-    
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index(Request $request)
-    { 
+    {
         if ($request->ajax()) {
             $data = Eventos::all();
 
@@ -61,7 +58,6 @@ class AdmEventosController extends Controller
         }
 
         return view('adm.calendario.listar', compact('user'));
-        
     }
 
 
