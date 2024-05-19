@@ -23,13 +23,10 @@ Route::get('adm/calendario/uri', function() {
 
 // Administração
 Route::middleware(['cors'])->group(function () {
-    Route::get('adm/calendario', [AdmEventosController::class, 'index'])->name('adm.calendario.index');
+    Route::get('adm/calendario/{ni}', [AdmEventosController::class, 'index'])->name('adm.calendario.index');
     Route::get('adm/calendario/{id}', [AdmEventosController::class, 'show'])->name('adm.calendario.show');
     Route::post('adm/calendario', [AdmEventosController::class, 'store'])->name('adm.calendario.store');
     Route::delete('adm/calendario', [AdmEventosController::class, 'destroy'])->name('adm.calendario.destroy');
-
-    
-
 });
 
 Route::middleware(['cors'])->group(function () {
