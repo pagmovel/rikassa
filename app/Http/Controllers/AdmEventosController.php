@@ -15,11 +15,11 @@ class AdmEventosController extends Controller
     private $signature;
     private $ni;
 
-    public function __construct()
-    {
-        $this->signature = env('SIGNATURE');
-        $this->ni = env('NI');
-    }
+    // public function __construct()
+    // {
+    //     $this->signature = env('SIGNATURE');
+    //     $this->ni = env('NI');
+    // }
 
     public function uri()
     {
