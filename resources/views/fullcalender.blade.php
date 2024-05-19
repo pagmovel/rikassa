@@ -35,24 +35,27 @@
     <div class="modal fade" id="visualizarModal" tabindex="-1" aria-labelledby="visualizarModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="visualizarModalLabel">Visualizar o Evento</h1>
+                <div class="modal-header btn-primary">
+                    <h1 class="modal-title fs-5 text-white Capitalize" id="visualizar_title">Visualizar o Evento</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <dl class="row">
 
-                        <dt class="col-sm-3">ID:</dt>
-                        <dd class="col-sm-9" id="visualizar_id"></dd>
+                        {{-- <dt class="col-sm-3 titulo">Titulo:</dt>
+                        <dd class="col-sm-9" id="visualizar_title"></dd> --}}
                         
-                        <dt class="col-sm-3">Titulo:</dt>
-                        <dd class="col-sm-9" id="visualizar_title"></dd>
+                        <dt class="col-sm-3 titulo">Evento:</dt>
+                        <dd class="col-sm-9 texto Capitalize" id="visualizar_content"></dd>
                         
-                        <dt class="col-sm-3">Início:</dt>
-                        <dd class="col-sm-9" id="visualizar_start"></dd>
+                        <dt class="col-sm-3 titulo">Início:</dt>
+                        <dd class="col-sm-9 texto" id="visualizar_start"></dd>
                         
-                        <dt class="col-sm-3">Fim:</dt>
-                        <dd class="col-sm-9" id="visualizar_end"></dd>
+                        <dt class="col-sm-3 titulo">Fim:</dt>
+                        <dd class="col-sm-9 texto" id="visualizar_end"></dd>
+                        
+                        <dt class="col-sm-3 titulo"></dt>
+                        <dd class="col-sm-9 texto mt-3" id="visualizar_link"></dd>
                         
                     </dl>
                 </div>
@@ -106,23 +109,30 @@
             dayMaxEvents: true, // allow "more" link when too many events
     
             
-           events: "{{env('APP_URL')}}/calendario/list",
+            events: "{{env('APP_URL')}}/calendario/list",
         //    events: 'http://rikassa.exatamentepublicidade.com.br/calendario/list',
             
             
             eventClick: function (info) {
-                // receber o SELETOR da janela modal
                 const visualizarModal = new bootstrap.Modal(document.getElementById("visualizarModal"));
-    
-                // Enviar dados para o modal
-                document.getElementById("visualizar_id").innerText = info.event.id;
+
+                document.getElementById("visualizar_content").innerText = info.event.extendedProps.content;
                 document.getElementById("visualizar_title").innerText = info.event.title;
                 document.getElementById("visualizar_start").innerText = info.event.start.toLocaleString();
                 document.getElementById("visualizar_end").innerText = info.event.end.toLocaleString();
-    
+
+                var linkElement = document.getElementById("visualizar_link");
+
+                // Verifica se existe um link e atualiza o elemento apropriadamente
+                var link = info.event.extendedProps.link;
+                if (link && link.trim() !== "") {
+                    linkElement.innerHTML = `<a href="${link}" class="btn btn-primary">Acessar Evento</a>`; // Cria uma tag <a> com a classe do botão
+                } else {
+                    linkElement.innerText = " ";
+                }
+
                 // Abrir a janela modal
                 visualizarModal.show();
-    
             },
         });
     

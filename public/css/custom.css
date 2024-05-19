@@ -25,6 +25,16 @@ body {
     color: #94580A !important;
 }
 
+.texto {
+    color: #563101 !important;
+
+}
+
+.Capitalize {
+    text-transform: capitalize;
+}
+
+
 .fc-theme-bootstrap5 .fc-list, .fc-theme-bootstrap5 .fc-scrollgrid, .fc-theme-bootstrap5 td, .fc-theme-bootstrap5 th {
     border: 1px solid #f5d9bf !important;
 }

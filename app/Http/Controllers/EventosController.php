@@ -20,8 +20,15 @@ class EventosController extends Controller
         if($request->ajax()) {
 
             $data = Eventos::whereDate('start', '>=', $request->start)
-                    ->whereDate('end',   '<=', $request->end)
-                    ->get(['id', 'title','content','color', 'start', 'end']);
+                    ->whereDate('end', '<=', $request->end)
+                    ->get(['id', 'title', 'content', 'color', 'start', 'end', 'url']);
+
+            // Mapear a coleção para renomear a coluna 'url' para 'link'
+            $data = $data->map(function ($item) {
+                $item->link = $item->url;
+                unset($item->url); // Remove a coluna original 'url'
+                return $item;
+            });
 
             return response()->json($data);
         }
@@ -37,8 +44,15 @@ class EventosController extends Controller
     public function list(Request $request)
     {
         $data = Eventos::whereDate('start', '>=', $request->start)
-                    ->whereDate('end',   '<=', $request->end)
-                    ->get(['id', 'title','content','color', 'start', 'end']);
+                    ->whereDate('end', '<=', $request->end)
+                    ->get(['id', 'title', 'content', 'color', 'start', 'end', 'url']);
+
+        // Mapear a coleção para renomear a coluna 'url' para 'link'
+        $data = $data->map(function ($item) {
+            $item->link = $item->url;
+            unset($item->url); // Remove a coluna original 'url'
+            return $item;
+        });
 
         return response()->json($data);
     }
