@@ -2,6 +2,8 @@
 @section('title', 'Formulário de Inscrição')
 
 @section('content')
+<x-menu />
+
 <style>
     .table {
         --bs-table-border-color: #eddbc4 !important;
