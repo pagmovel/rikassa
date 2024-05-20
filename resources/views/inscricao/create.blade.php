@@ -258,7 +258,7 @@
 
                     <div class="col-md-12">
                         <div class="gap-2 d-grid">
-                            <button type="button" class="mb-3 btn btn-primary md-12" data-bs-toggle="modal" data-bs-target="#exampleModal">Clique Aqui Continuar a Inscrição</button>
+                            <button type="button" class="mb-3 btn btn-primary md-12" data-bs-toggle="modal" data-bs-target="#exampleModal">Clique Aqui Para Continuar a Inscrição</button>
                         </div>
                     </div>
                     
